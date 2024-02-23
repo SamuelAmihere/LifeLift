@@ -1,53 +1,35 @@
 #! /usr/bin/python3
-"""This is the Ambulance module"""
+"""This is the Driver module"""
 import models
 from models.base_model import Base, BaseModel
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import ENUM
-from models.location import Location
-from models.driver import Driver
+from models.ambulance import Ambulance
 
 
-class Ambulance(BaseModel, Base):
-    """This is the Ambulance class"""
+class Driver(BaseModel, Base):
+    """This is the Driver class"""
     def __init__(self, *args, **kwargs):
-        """This method initializes a new instance of the Ambulance class"""
+        """This method initializes a new instance of the Driver class"""
         super().__init__(*args, **kwargs)
-    
+
     if models.storage_type == "db":
-        __tablename__ = 'ambulances'
-        ambulance_id = Column(Integer, primary_key=True, autoincrement=True)
-        registration_number = Column(String(20), nullable=False)
-        model = Column(String(50))
-        make = Column(String(50))
-        capacity = Column(Integer)
-        status = Column(Enum('Available', 'Busy', 'Out of Service'), default='Available')
-        location_id = Column(Integer, ForeignKey('locations.location_id'))
-        driver_id = Column(Integer, ForeignKey('drivers.driver_id'), nullable=True)
-
+        __tablename__ = 'drivers'
+        driver_id = Column(Integer, primary_key=True, autoincrement=True)
+        full_name = Column(String(100), nullable=False)
+        email = Column(String(100), unique=True)
+        phone = Column(String(20))
+        license_number = Column(String(50), unique=True)
+        status = Column(Enum('Active', 'Inactive'), default='Active')
     else:
-        registration_number = ""
-        model = ""
-        make = ""
-        capacity = 0
-        status = "Available"
-        location_id = ""
-        driver_id = ""
+        full_name = ""
+        email = ""
+        phone = ""
+        license_number = ""
+        status = "Active"
 
-    def assign_driver(self, driver):
-        """This method assigns a driver to the ambulance"""
-        self.driver_id = driver.driver_id
-        models.storage.save()
-
-    def unassign_driver(self):
-        """This method unassigns a driver from the ambulance"""
-        self.driver_id = None
-        models.storage.save()
-
-
-
-# Path: web_flask/models/ambulance.py
+# Path: web_flask/models/driver.py
 # Compare this snippet from web_flask/models/base_model.py:
 # from sqlalchemy.ext.declarative import declarative_base
 # from sqlalchemy import Column, Integer, String, DateTime
