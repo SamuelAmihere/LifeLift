@@ -10,6 +10,9 @@ from models.hospital import Hospital
 from models.location import Location
 from models.patient import Patient
 from models.incident import Incident
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 class DBStorage:
