@@ -10,7 +10,7 @@ from models.location import Address
 from models.ambulance.driver import Driver
 
 
-class AmbulanceStaff(BaseModel, Base):
+class Staff(BaseModel, Base):
     """This is the Ambulance Staff class"""
     __tablename__ = 'ambulance_staff'
     staff_id = Column(Integer, primary_key=True, autoincrement=True)
@@ -19,6 +19,11 @@ class AmbulanceStaff(BaseModel, Base):
     phone = Column(String(20))
     role = Column(String(100), nullable=False)
 
+ambulanceOwner_staff = Table('ambulanceOwner_staff', Base.metadata,
+                            Column('ambu_owner_id', Integer,
+                                   ForeignKey('ambulance_owners.ambu_owner_id')),
+                            Column('staff_id', Integer, ForeignKey('ambulance_staff.staff_id'))
+                            )
 
 class AmbulanceOwner(BaseModel, Base):
     """This is the Ambulance Operator class"""
