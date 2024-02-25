@@ -18,6 +18,7 @@ if models.storage_type == "db":
                                 primary_key=True,
                                 nullable=False)
                             )
+
     hospital_alerts = Table('hospital_alerts', Base.metadata,
                             Column('hospitals_id', Integer,
                                 ForeignKey('hospitals.id'),
@@ -28,6 +29,7 @@ if models.storage_type == "db":
                                 primary_key=True,
                                 nullable=False)
                             )
+
     staff_topic = Table('staff_topic', Base.metadata,
                         Column('hospital_staffs_id', Integer,
                             ForeignKey('hospital_staffs.id'),
@@ -39,12 +41,15 @@ if models.storage_type == "db":
                             nullable=False)
                         )
 
+
 class HealthTopic(BaseModel, Base):
     """This is the Health Topic class"""
     if models.storage_type == "db":
         __tablename__ = 'health_topics'
         topic = Column(String(100), nullable=False)
-        hospital_staff_id = Column(Integer, ForeignKey('hospital_staff.id'), nullable=False)
+        hospital_staff_id = Column(Integer,
+                                   ForeignKey('hospital_staff.id'),
+                                   nullable=False)
         message = Column(String(2000), nullable=False)
     else:
         topic = ""
@@ -59,9 +64,11 @@ class HospitalStaff(BaseModel, Base):
         full_name = Column(String(100), nullable=False)
         email = Column(String(100), unique=True)
         phone = Column(String(20))
-        hospital_id = Column(Integer, ForeignKey('hospitals.id'), nullable=False)
+        hospital_id = Column(Integer, ForeignKey('hospitals.id'),
+                             nullable=False)
         role = Column(String(100), nullable=False)
-        health_topics = relationship("HealthTopic", secondary=staff_topic,
+        health_topics = relationship("HealthTopic",
+                                     secondary=staff_topic,
                                      viewonly=False)
     else:
         full_name = ""
@@ -96,14 +103,16 @@ class Hospital(BaseModel, Base):
         name = Column(String(100), nullable=False)
         email = Column(String(100), unique=True)
         phone = Column(String(20))
-        address_id = Column(Integer, ForeignKey('addresses.id'), nullable=False)
+        address_id = Column(Integer, ForeignKey('addresses.id'),
+                            nullable=False)
         latitude = Column(Float, nullable=False)
         longitude = Column(Float, nullable=False)
         status = Column(Enum('Active', 'Inactive'), default='Active')
         staff = relationship("HospitalStaff", backref="hospitals",
                                       cascade="all, delete-orphan")
         alerts = relationship("Alert", secondary=hospital_alerts,
-                              backref="hospitals", cascade="all, delete-orphan")
+                              backref="hospitals",
+                              cascade="all, delete-orphan")
     else:
         name = ""
         email = ""
@@ -142,7 +151,9 @@ class Hospital(BaseModel, Base):
                 self.current_allerts_alerts = value
 
     def remove_staff(self, value):
-        """This method removes a staff member from the list of all staff"""
+        """This method removes a staff member from the
+        list of all staff
+        """
         # TODO: Implement this method
         pass
 

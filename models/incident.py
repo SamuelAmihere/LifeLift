@@ -2,18 +2,15 @@
 """
 This module contains the Incident class
 """
-from datetime import datetime
 from models.base_model import BaseModel
 from models.patient import Patient
 from models.ambulance.ambulance import Ambulance
-from models.location import Location
 from sqlalchemy import Column, Integer, String,Float, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import ENUM
 from sqlalchemy import Table
 import models
 from models.base_model import Base
-
 
 if models.storage_type == "db":
     incident_patients = Table('incident_patient', Base.metadata,
@@ -76,11 +73,11 @@ class Incident(BaseModel, Base):
        @patients.setter
        def patients(self, value):
            """Setter for patients"""
-           if isinstance(value, Patient):
+           if isinstance(value, Patient) and value not in self.patients:
                self.patients.append(value)
 
        @ambulances.setter
        def ambulances(self, value):
            """Setter for ambulances"""
-           if isinstance(value, Ambulance):
+           if isinstance(value, Ambulance) and value not in self.ambulances:
                self.ambulances.append(value)

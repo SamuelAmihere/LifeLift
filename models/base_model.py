@@ -17,12 +17,18 @@ if storage_type == 'db':
 else:
     Base = object
 
+
 class BaseModel:
-    """This class is the base class for all other classes in this project"""
+    """This class is the base class for all other
+    classes in this project
+    """
     if storage_type == 'db':
-        id = Column(String(60), primary_key=True, nullable=False, unique=True)
-        created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-        updated_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+        id = Column(String(60), primary_key=True, nullable=False,
+                    unique=True)
+        created_at = Column(DateTime, default=datetime.utcnow,
+                            nullable=False)
+        updated_at = Column(DateTime, default=datetime.utcnow,
+                            nullable=False)
 
     def __init__(self, *args, **kwargs):
         """Initializes an instance of the BaseModel class"""
@@ -53,15 +59,17 @@ class BaseModel:
                                      self.__dict__)
     
     def save(self):
-        """Updates the public instance attribute updated_at to the current
-        datetime"""
+        """Updates the public instance attribute updated_at
+        to the current datetime
+        """
         self.updated_at = datetime.now()
         models.storage.new(self)
         models.storage.save()
 
     def to_dict(self, save_fs=0):
-        """Returns a dictionary containing all keys/values of __dict__ of the
-        instance"""
+        """Returns a dictionary containing all keys/values
+        of __dict__ of the instance
+        """
         new_dict = self.__dict__.copy()
         if '_sa_instance_state' in new_dict:
             del new_dict['_sa_instance_state']

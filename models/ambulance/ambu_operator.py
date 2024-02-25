@@ -2,15 +2,19 @@
 """This is the Ambulance Operator module"""
 import models
 from models.base_model import Base, BaseModel
-from sqlalchemy import Column, Integer, String, Enum, ForeignKey, Table
+from sqlalchemy import Column, Integer, String, Enum
+from sqlalchemy import ForeignKey, Table
 from sqlalchemy.orm import relationship
 from datetime import datetime
 
-
 if models.storage_type == "db":
     staff_drivers = Table('staff_drivers', Base.metadata,
-                            Column('staff_id', Integer, ForeignKey('staff.id')),
-                            Column('driver_id', Integer, ForeignKey('drivers.id'))
+                            Column('staff_id', Integer,
+                                   ForeignKey('staff.id'),
+                                   primary_key=True),
+                            Column('driver_id', Integer,
+                                   ForeignKey('drivers.id'),
+                                   primary_key=True)
                             )
 
 
@@ -47,9 +51,11 @@ class AmbulanceOwner(BaseModel, Base):
         name = Column(String(100), nullable=False)
         email = Column(String(100), unique=True)
         phone = Column(String(20))
-        address_id = Column(Integer, ForeignKey('addresses.id'), nullable=False)
+        address_id = Column(Integer, ForeignKey('addresses.id'),
+                            nullable=False)
         status = Column(Enum('Active', 'Inactive'), default='Active')
-        ambulances = relationship("Ambulance", backref="ambulance_owners",
+        ambulances = relationship("Ambulance",
+                                  backref="ambulance_owners",
                               cascade="all, delete-orphan")
         drivers = relationship("Driver", backref="ambulance_owners",
                                 cascade="all, delete-orphan")
@@ -95,7 +101,8 @@ class AmbulanceOwner(BaseModel, Base):
             if value not in self.available_drivers:
                 self.available_drivers = value
     
-    def assign_driver_to_ambulance(self, driver_id:str, ambulance_id:str):
+    def assign_driver_to_ambulance(self, driver_id:str,
+                                   ambulance_id:str):
         """This method adds staff to an ambulance"""
         data = models.storage.all()
         ambus = {}

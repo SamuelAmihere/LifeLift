@@ -2,7 +2,8 @@
 """This is the Ambulance module"""
 import models
 from models.base_model import Base, BaseModel
-from sqlalchemy import Column, Integer, String, Enum, ForeignKey, Table
+from sqlalchemy import Column, Integer, String, Enum
+from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
 
 
@@ -10,7 +11,8 @@ class Ambulance(BaseModel, Base):
     """This is the Ambulance class"""
     if models.storage_type == "db":
         __tablename__ = 'ambulances'
-        ambulance_id = Column(Integer, primary_key=True, autoincrement=True)
+        ambulance_id = Column(Integer, primary_key=True,
+                              autoincrement=True)
         registration_number = Column(String(20), nullable=False)
         model = Column(String(50))
         capacity = Column(Integer, nullable=True)
@@ -18,8 +20,9 @@ class Ambulance(BaseModel, Base):
                         default='Available')
         driver_id = Column(Integer, ForeignKey('drivers.driver_id'),
                         nullable=True)
-        ambu_owner_id = Column(Integer, ForeignKey('ambulance_owners.ambu_owner_id'),
-                                    nullable=False)
+        ambu_owner_id = Column(Integer,
+                               ForeignKey('ambulance_owners.ambu_owner_id'),
+                               nullable=False)
         site_id = Column(Integer, ForeignKey('locations.location_id'),
                         nullable=False)
     else:

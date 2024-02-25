@@ -133,3 +133,10 @@ inc1.patients = [pat1.id]
 inc1.ambulances = [amb1.id, amb2.id]
 
 inc1.save()
+
+# Create system user
+user1 = SystemUser(first_name="Samuel ", last_name="Amihere", email="mos@gmail.com",
+                     password="password", user_type="Admin")
+user1.save()
+
+print(user1)
