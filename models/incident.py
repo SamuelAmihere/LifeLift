@@ -58,16 +58,29 @@ class Incident(BaseModel, Base):
        longitude = 0.0
        incident_status = ""
        incident_description = ""
-
+       patients = []
+       ambulances = []
        @property
        def patients(self):
            """Getter for patients"""
-           patients = models.storage.all('Patient')
-           data = []
-           results = []
-           for patient in patients.values():
-               if patient.id in self.patients:
-                   data.append(patient)  
-           for patient in data:
-               results.append(patient.to_dict()) 
-           return results
+           if len(self.patients) > 0:
+               return self.patients
+           return None
+       @property
+       def ambulances(self):
+           """Getter for ambulances"""
+           if len(self.ambulances) > 0:
+               return self.ambulances
+           return None
+       
+       @patients.setter
+       def patients(self, value):
+           """Setter for patients"""
+           if isinstance(value, Patient):
+               self.patients.append(value)
+
+       @ambulances.setter
+       def ambulances(self, value):
+           """Setter for ambulances"""
+           if isinstance(value, Ambulance):
+               self.ambulances.append(value)

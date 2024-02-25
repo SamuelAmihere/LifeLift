@@ -117,3 +117,19 @@ staff1.save()
 
 hosp1.save()
 hosp2.save()
+
+# create patients
+paddd1 = Address(street="Street4 lo23", city="Lagos", state="Lagos", country="Nigeria")
+pat1 = Patient(full_name="Patient 1", email="", phone="08012345678",
+                location_id=loc1.id, address_id=paddd1.id,
+                relative_phone="08012345678")
+
+# create incidents
+
+
+inc1 = Incident(incident_type="Fire", latitude=6.5244, longitude=3.3792,
+                incident_status="Pending", incident_description="Fire outbreak")
+inc1.patients = [pat1.id]
+inc1.ambulances = [amb1.id, amb2.id]
+
+inc1.save()
