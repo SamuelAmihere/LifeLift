@@ -2,12 +2,13 @@
 """
 This module contains the Incident class
 """
+from enum import Enum
 from models.base_model import BaseModel
-from models.patient import Patient
+from models.patient import Patient_119 as Patient
 from models.ambulance.ambulance import Ambulance
-from sqlalchemy import Column, Integer, String,Float, ForeignKey
+from sqlalchemy import Column, Integer, String, Float
+from sqlalchemy import Enum, ForeignKey
 from sqlalchemy.orm import relationship
-from sqlalchemy.dialects.postgresql import ENUM
 from sqlalchemy import Table
 import models
 from models.base_model import Base
@@ -44,11 +45,11 @@ class Incident(BaseModel, Base):
        incident_type = Column(String(50), nullable=False)
        latitude = Column(Float, nullable=False)
        longitude = Column(Float, nullable=False)
-       incident_status = Column(ENUM('Pending', 'Resolved', 'Cancelled'),
+       incident_status = Column(Enum('Pending', 'Resolved', 'Cancelled'),
                                    default='Pending')
        incident_description = Column(String(100), nullable=False)
        patients = relationship("Patient", secondary=incident_patients)
-       ambulances = relationship("Ambulance", secondary=incident_ambulances)
+       ambulances = relationship("Ambulance", secondary=incident_ambulances, nullable = True)
     else:
        incident_type = ""
        latitude = 0.0

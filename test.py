@@ -2,7 +2,7 @@
 
 from models.hospital.hosp_operator import HealthTopic, Hospital
 from models.system_user import SystemUser
-from models.patient import Patient
+from models.patient import Patient_119 as Patient
 from models.location import Location
 from models.ambulance.ambulance import Ambulance
 from models.incident import Incident

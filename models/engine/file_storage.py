@@ -5,9 +5,7 @@ Contains the FileStorage class
 
 import json
 import models
-from models.base_model import BaseModel
-
-from models.patient import Patient
+from models.patient import Patient_119 as Patient
 from models.review import Review
 from models.ambulance.ambulance import Ambulance
 from models.ambulance.ambu_operator import AmbulanceOwner
