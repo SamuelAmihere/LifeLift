@@ -122,7 +122,7 @@ class Hospital(BaseModel, Base):
         latitude = ""
         longitude = ""
         available_staff = []
-        current_allerts_alerts = []
+        current_allerts = []
 
         @property
         def staff(self):
@@ -148,7 +148,7 @@ class Hospital(BaseModel, Base):
         def alerts(self, value):
             """This method sets the list of all alerts"""
             if value not in self.current_allerts_alerts:
-                self.current_allerts_alerts = value
+                self.current_allerts = value
 
     def remove_staff(self, value):
         """This method removes a staff member from the
