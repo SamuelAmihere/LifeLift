@@ -1,1 +1,1 @@
-<img src="./rsc/lifelifter.svg">
+<img src="./rsc/lifelift.svg">
