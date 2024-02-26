@@ -1,0 +1,1 @@
+<img src="./rsc/Alx-projects-Main.drawio.svg">
