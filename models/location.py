@@ -2,7 +2,7 @@
 """This is the Location module"""
 import models
 from models.base_model import Base, BaseModel
-from sqlalchemy import Column, Integer, String, ForeignKey,
+from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy import Float, Table
 from sqlalchemy.orm import relationship
 
