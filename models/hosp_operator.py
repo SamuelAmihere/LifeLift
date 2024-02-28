@@ -2,151 +2,99 @@
 """This is the Hospital Operator module"""
 import models
 from models.base_model import Base, BaseModel
-from sqlalchemy import Column, Integer, String, Float,Enum
-from sqlalchemy import ForeignKey, Table
+from sqlalchemy import Column, Integer, String, Float
 from sqlalchemy.orm import relationship
-
+from models.company import Company
 from models.system_user import Staff
-
-
-if models.storage_type == "db":
-    hospital_topic = Table('hospital_topic', Base.metadata,
-                            Column('hospitals_id', Integer,
-                                ForeignKey('hospitals.id'),
-                                primary_key=True,
-                                nullable=False),
-                            Column('health_topics_id', Integer,
-                                ForeignKey('health_topics.id'),
-                                primary_key=True,
-                                nullable=False)
-                            )
-
-    hospital_alerts = Table('hospital_alerts', Base.metadata,
-                            Column('hospitals_id', Integer,
-                                ForeignKey('hospitals.id'),
-                                primary_key=True,
-                                nullable=False),
-                            Column('alerts_id', Integer,
-                                ForeignKey('alerts.id'),
-                                primary_key=True,
-                                nullable=False)
-                            )
-
-    staff_topic = Table('staff_topic', Base.metadata,
-                        Column('hospital_staff_id', Integer,
-                            ForeignKey('hospital_staff.id'),
-                            primary_key=True,
-                            nullable=False),
-                        Column('health_topics_id', Integer,
-                            ForeignKey('health_topics.id'),
-                            primary_key=True,
-                            nullable=False)
-                        )
-
+from models.location import location_hospitals
 
 class HealthTopic(BaseModel, Base):
     """This is the Health Topic class"""
     if models.storage_type == "db":
         __tablename__ = 'health_topics'
         topic = Column(String(100), nullable=False)
-        hospital_staff_id = Column(Integer,
-                                   ForeignKey('hospital_staff.id'),
-                                   nullable=False)
-        message = Column(String(2000), nullable=False)
     else:
         topic = ""
-        hospital_staff_id = ""
-        message = ""
 
 
-class HospitalStaff(Staff, Base):
+class StaffMessage(BaseModel, Base):
+    """This is the Health Topic message class"""
+    if models.storage_type == "db":
+        __tablename__ = 'staff_messages'
+        health_topic_id = Column(Integer, nullable=False)
+        staff_id = Column(Integer, nullable=False)
+        message = Column(String(2000), nullable=False)
+
+
+class HospitalStaff(Staff):
     """This is the Hospital Staff class"""
     if models.storage_type == "db":
         __tablename__ = 'hospital_staff'
-        health_topics = relationship("HealthTopic",
-                                     secondary=staff_topic,
-                                     viewonly=False)
+        health_messages = relationship("StaffMessage",
+                                       backref="hospital_staff")
     else:
-        health_topics = []
+        health_messages = []
 
         @property
-        def health_topics(self):
-            """This method returns a list of all health topics
+        def health_messages(self):
+            """This method returns a list of all health messages
             for this staff member
             """
-            if len(self.health_topics) > 0:
-                return self.health_topics
+            if len(self.health_messages) > 0:
+                return self.health_messages
             return None
-        
-        @health_topics.setter
-        def health_topics(self, value):
-            """This method sets the list of all health topics
+
+        @health_messages.setter
+        def health_messages(self, value):
+            """This method sets the list of all health messages
             for this staff member
             """
-            if value not in self.health_topics:
-                self.health_topics = value
+            if value not in self.health_messages:
+                self.health_messages = value
 
 
-class Hospital(BaseModel, Base):
+class Hospital(Company):
     """This is the Hospital Operator class"""
     if models.storage_type == "db":
         __tablename__ = 'hospitals'
-        name = Column(String(100), nullable=False)
-        email = Column(String(100), unique=True)
-        phone = Column(String(20))
-        address_id = Column(Integer, ForeignKey('addresses.id'),
-                            nullable=False)
         latitude = Column(Float, nullable=False)
         longitude = Column(Float, nullable=False)
-        status = Column(Enum('Active', 'Inactive'), default='Active')
-        staff = relationship("HospitalStaff", backref="hospitals",
-                                      cascade="all, delete-orphan")
-        alerts = relationship("Alert", secondary=hospital_alerts,
-                              backref="hospitals",
-                              cascade="all, delete-orphan")
+        alerts = relationship("Alert", backref="hospital",
+                              cascade="all, delete-orphan",
+                              nullable=True)
+        locations = relationship(location_hospitals, backref="hospital_staff")
     else:
-        name = ""
-        email = ""
-        phone = ""
-        address_id = ""
-        status = ""
         latitude = ""
         longitude = ""
-        available_staff = []
-        current_allerts = []
+        active_alerts = []
+        current_locations = []
 
-        @property
-        def staff(self):
-            """This method returns a list of all hospitals"""
-            if len(self.available_staff) > 0:
-                return self.available_staff
-            return None
-        
         @property
         def alerts(self):
             """This method returns a list of all alerts"""
-            if len(self.current_allerts_alerts) > 0:
-                return self.current_allerts_alerts
+            if len(self.active_alerts) > 0:
+                return self.active_alerts
             return None
-        
-        @staff.setter
-        def staff(self, value):
-            """This method sets the list of all hospitals"""
-            if value not in self.available_staff:
-                self.available_staff = value
-        
+        @property
+        def locations(self):
+            """This method returns a list of all temporal locations
+            the hospital is in
+            """
+            if len(self.current_locations) > 0:
+                return self.current_locations
+            return None
+
         @alerts.setter
         def alerts(self, value):
             """This method sets the list of all alerts"""
-            if value not in self.current_allerts_alerts:
-                self.current_allerts = value
+            if type(value) == str and value not in self.active_alerts:
+                self.alerts.append(value)
 
-    def remove_staff(self, value):
-        """This method removes a staff member from the
-        list of all staff
-        """
-        # TODO: Implement this method
-        pass
+        @locations.setter
+        def locations(self, value):
+            """This method sets the list of all alerts"""
+            if type(value) == str and value not in self.current_locations:
+                self.current_locations.append(value)
 
     def accept_alert(self):
         """This method accepts an alert"""

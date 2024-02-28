@@ -5,44 +5,34 @@ from sqlalchemy import Column, Integer, String
 from sqlalchemy import ForeignKey, Table, Enum
 from sqlalchemy.orm import relationship
 from models import storage_type
-
-if storage_type == "db":
-    alert_patient = Table('alert_patient', Base.metadata,
-                            Column('alert_id', Integer,
-                                    ForeignKey('alerts.id'),
-                                    primary_key=True,
-                                    nullable=False),
-                            Column('patient_id', Integer,
-                                    ForeignKey('patients.id'),
-                                    primary_key=True,
-                                    nullable=False)
-                            )
+from location import site_alerts
 
 
 class Alert(BaseModel, Base):
     """This is the Alert class"""
     if storage_type == "db":
         __tablename__ = 'alerts'
-        hospital_id = Column(Integer, ForeignKey('hospitals.id'),
+        incident_id = Column(Integer, ForeignKey('incidents.id'),
                              nullable=False)
-        ambulance_id = Column(Integer, ForeignKey('ambulances.id'),
-                              nullable=False)
         alert_type = Column(String(100), nullable=False)
         alert_status = Column(Enum('comfirmed', 'pending', 'resolved'), nullable=False)
-        patients = relationship("Patient", secondary=alert_patient,
-                               viewonly=False)
+        sites = relationship(site_alerts, backref="sites")
     else:
-        hospital_id = ""
-        ambulance_id = ""
+        incident_id = ""
         alert_type = ""
-        alert_time = ""
         alert_status = ""
-        patients = []
+        alerts_locations = []
 
         @property
-        def patients(self):
-            """This method returns a list of all patients associated
+        def locations(self):
+            """This method returns a list of all locations associated
             with this alert
             """
-            if len(self.patients) > 0:
-                return self.patients
+            if len(self.alerts_locations) > 0:
+                return self.alerts_locations
+
+        @locations.setter
+        def locations(self, value):
+            """This method sets the locations associated with this alert"""
+            if value not in self.alerts_locations:
+                self.alerts_locations.append(value)

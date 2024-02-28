@@ -5,6 +5,7 @@ from models.base_model import Base, BaseModel
 from sqlalchemy import Column, Integer, String, Enum
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
+from models.incident import incident_ambulances
 
 
 class Ambulance(BaseModel, Base):
@@ -12,15 +13,17 @@ class Ambulance(BaseModel, Base):
     if models.storage_type == "db":
         __tablename__ = 'ambulances'
         registration_number = Column(String(20), nullable=False)
+        site_id = Column(Integer, ForeignKey('sites.id'),nullable=False)
         model = Column(String(50))
         capacity = Column(Integer, nullable=True, default=0)
         status = Column(Enum('Available', 'Busy', 'Out of Service'),
                         default='Available')
-        ambu_owner_id = Column(Integer,
-                               ForeignKey('ambulance_owners.ambu_owner_id'),
+        operator_id = Column(Integer, ForeignKey('operators.id'),
                                nullable=False)
         staff = relationship("Staff", secondary="ambulance_staff",
                              back_populates="ambulances", nullable=True)
+        incidents = relationship(incident_ambulances, backref="ambulances",
+                                 nullable=True)
     else:
         registration_number = ""
         model = ""

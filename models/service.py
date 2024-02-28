@@ -1,9 +1,9 @@
 #! /usr/bin/env python3
 """ This module contains the Service class """
+import models
 from models.base_model import BaseModel, Base
 from sqlalchemy import Column, Integer, String, ForeignKey, Enum
 from sqlalchemy.orm import relationship
-from sqlalchemy import Table
 from models import storage_type
 from models.review import Review, ReviewService
 
@@ -26,7 +26,7 @@ class Service(BaseModel, Base):
         dispatch_time = Column(String(128), nullable=True)
         arrival_time_pat = Column(String(128), nullable=True)
         arrival_time_hos = Column(String(128), nullable=True)
-        reviews = relationship("ReviewService", backref="service", cascade="all, delete")
+        reviews = relationship("ReviewService", backref="services", cascade="all, delete")
     else:
         service_type = ""
         status = ""
@@ -38,16 +38,17 @@ class Service(BaseModel, Base):
         dispatch_time = ""
         arrival_time_pat = ""
         arrival_time_hos = ""
-        reviews = []
+        all_reviews = []
         @property
         def reviews(self):
             """Getter for reviews"""
-            if len(self.reviews) > 0:
-                return self.reviews
-            return None
+            for rev in models.storage.all("ReviewService").values():
+                if rev.service_id == self.id and rev not in self.all_reviews:
+                    self.all_reviews.append(rev)
+            return self.all_reviews
 
         @reviews.setter
-        def reviews(self, value: ReviewService):
+        def reviews(self, value):
             """Setter for reviews"""
-            if type(value) == Review and value not in self.reviews:
-                self.reviews.append(value)
+            if type(value) == str and value not in self.all_reviews:
+                self.all_reviews.append(value)

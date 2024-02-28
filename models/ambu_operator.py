@@ -10,8 +10,9 @@ from models.company import Company
 from system_user import Staff
 
 
-
-class AmbulanceOwner(Company, Base):
+class AmbulanceOwner(Company):
     """This is the Ambulance Operator class"""
-    
-    pass
+    if models.storage_type == "db":
+        __tablename__ = 'operators'
+    else:
+        pass
