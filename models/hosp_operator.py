@@ -2,7 +2,7 @@
 """This is the Hospital Operator module"""
 import models
 from models.base_model import Base, BaseModel
-from sqlalchemy import Column, Integer, String, Float
+from sqlalchemy import Column, ForeignKey, String, Float
 from sqlalchemy.orm import relationship
 from models.company import Company
 from models.system_user import Staff
@@ -21,8 +21,10 @@ class StaffMessage(BaseModel, Base):
     """This is the Health Topic message class"""
     if models.storage_type == "db":
         __tablename__ = 'staff_messages'
-        health_topic_id = Column(Integer, nullable=False)
-        staff_id = Column(Integer, nullable=False)
+        health_topic_id = Column(String(60), ForeignKey('health_topics.id'),
+                                 nullable=False)
+        staff_id = Column(String(60), ForeignKey('hospital_staff.id'),
+                          nullable=False)
         message = Column(String(2000), nullable=False)
 
 

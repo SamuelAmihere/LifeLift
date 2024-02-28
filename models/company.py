@@ -4,7 +4,7 @@ import datetime
 from sqlalchemy.ext.declarative import declarative_base
 import models
 from models.base_model import BaseModel, Base
-from sqlalchemy import Column, Enum, ForeignKey, Integer, String, Table
+from sqlalchemy import Column, Enum, ForeignKey, String
 from models import storage_type
 from sqlalchemy.orm import relationship
 
@@ -17,7 +17,7 @@ class Company(BaseModel, Base):
         name = Column(String(128), nullable=False)
         email = Column(String(128), nullable=True)
         phone_number = Column(String(128), nullable=True)
-        address_id = Column(Integer, nullable=False)
+        address_id = Column(String(60), ForeignKey('addresses.id'), nullable=False)
         status = Column(Enum('active', 'inactive'), default='active')
         staff = relationship("Staff", backref="company", cascade="delete")
         ambulances = relationship("Ambulance", backref="company", cascade="delete")

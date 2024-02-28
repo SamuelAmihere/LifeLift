@@ -4,16 +4,27 @@ from os import getenv
 from models.base_model import Base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
-from models.user import User
+from models.system_user import  Patient
+from models.review import Review
 from models.ambulance import Ambulance
-from models.hospital import Hospital
-from models.location import Location
-from models.patient import Patient
+from models.ambu_operator import AmbulanceOwner
+from models.system_user import Driver, Dispatcher, Staff
+from models.user import User
+from models.hosp_operator import Hospital, HealthTopic
+from models.hosp_operator import HospitalStaff
+from models.location import Address
+from models.alert import Alert
 from models.incident import Incident
 from dotenv import load_dotenv
 
 load_dotenv()
 
+classes= [
+    Patient, Review, Ambulance,
+    AmbulanceOwner, Driver, Dispatcher,
+    Staff, User, Hospital, HealthTopic,
+    HospitalStaff, Address, Alert, Incident
+    ]
 
 class DBStorage:
     """ This class is the storage engine for the project """
@@ -34,7 +45,6 @@ class DBStorage:
 
     def all(self, cls=None):
         """ This method returns a dictionary of all instances of a class """
-        classes = [User, Ambulance, Hospital, Location, Patient, Incident]
         new_dict = {}
         if cls:
             for obj in self.__session.query(cls):
@@ -80,7 +90,6 @@ class DBStorage:
         if cls:
             return self.__session.query(cls).count()
         else:
-            classes = [User, Ambulance, Hospital, Location, Patient, Incident]
             count = 0
             for c in classes:
                 count += self.__session.query(c).count()

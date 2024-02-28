@@ -2,7 +2,7 @@
 """This module contains the Alert class"""
 from models.base_model import BaseModel, Base
 from sqlalchemy import Column, Integer, String
-from sqlalchemy import ForeignKey, Table, Enum
+from sqlalchemy import ForeignKey, Enum
 from sqlalchemy.orm import relationship
 from models import storage_type
 from location import site_alerts
@@ -12,7 +12,7 @@ class Alert(BaseModel, Base):
     """This is the Alert class"""
     if storage_type == "db":
         __tablename__ = 'alerts'
-        incident_id = Column(Integer, ForeignKey('incidents.id'),
+        incident_id = Column(String(60), ForeignKey('incidents.id'),
                              nullable=False)
         alert_type = Column(String(100), nullable=False)
         alert_status = Column(Enum('comfirmed', 'pending', 'resolved'), nullable=False)

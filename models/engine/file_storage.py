@@ -5,15 +5,17 @@ Contains the FileStorage class
 
 import json
 import models
-from models.patient import Patient_119 as Patient
+from models.system_user import  Patient
 from models.review import Review
-from models.ambulance.ambulance import Ambulance
+from models.ambulance import Ambulance
 from models.ambu_operator import AmbulanceOwner
-from models.ambu_operator import Driver
-from models.hosp_operator import Hospital, HealthTopic, HospitalStaff
-from models.system_user import SystemUser
+from models.system_user import Driver, Dispatcher, Staff
+from models.user import User
+from models.hosp_operator import Hospital, HealthTopic
+from models.hosp_operator import HospitalStaff
 from models.location import Address
 from models.alert import Alert
+from models.incident import Incident
 from models import storage_type
 
 from hashlib import md5
@@ -24,12 +26,15 @@ classes = {
     "Ambulance": Ambulance,
     "AmbulanceOwner": AmbulanceOwner,
     "Driver": Driver,
+    "Dispatcher": Dispatcher,
+    "Staff": Staff,
+    "User": User,
     "Hospital": Hospital,
     "HealthTopic": HealthTopic,
     "HospitalStaff": HospitalStaff,
-    "SystemUser": SystemUser,
     "Address": Address,
-    "Alert": Alert
+    "Alert": Alert,
+    "Incident": Incident
 }
 
 

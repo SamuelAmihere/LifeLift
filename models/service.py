@@ -1,11 +1,11 @@
 #! /usr/bin/env python3
 """ This module contains the Service class """
+from datetime import datetime
 import models
 from models.base_model import BaseModel, Base
-from sqlalchemy import Column, Integer, String, ForeignKey, Enum
+from sqlalchemy import Column, DateTime, String, ForeignKey, Enum
 from sqlalchemy.orm import relationship
 from models import storage_type
-from models.review import Review, ReviewService
 
 
 class Service(BaseModel, Base):
@@ -15,24 +15,30 @@ class Service(BaseModel, Base):
     """
     if storage_type == "db":
         __tablename__ = "services"
-        status = Column(Enum('Pending', 'ongoing', 'Resolved', 'Cancelled'), default='Pending',
+        status = Column(Enum('Pending', 'ongoing', 'Resolved', 'Cancelled'),
+                        default='Pending',
                         nullable=False)
-        incident_id = Column(Integer, ForeignKey('incidents.id'),
-                             nullable=True)
-        ambulance_id = Column(Integer, ForeignKey('ambulances.id'),
-                              nullable=True)
-        request_time = Column(String(128), nullable=False)
-        accepted_time = Column(String(128), nullable=True)
-        dispatch_time = Column(String(128), nullable=True)
-        arrival_time_pat = Column(String(128), nullable=True)
-        arrival_time_hos = Column(String(128), nullable=True)
+        # status update by ambulance at dispatch (ongoing),
+        # at patient (Resolved), at hospital (Resolved),
+        # by dispatcher (Cancelled
+
+        incident_id = Column(String(60), ForeignKey('incidents.id'),
+                             nullable=False)
+        ambulance_id = Column(String(60), ForeignKey('ambulances.id'),
+                              nullable=False) # update by dispatcher
+        alert_id = Column(String(60), ForeignKey('alerts.id'), nullable=False)
+        request_time = Column(DateTime, nullable=False)
+        accepted_time = Column(DateTime, default=datetime.utcnow,
+                            nullable=False)
+        dispatch_time = Column(DateTime, nullable=True) # update by ambulance at dispatch
+        arrival_time_pat = Column(String(128), nullable=True) # update by ambulance at patient
+        arrival_time_hos = Column(String(128), nullable=True) # update by ambulance at hospital
         reviews = relationship("ReviewService", backref="services", cascade="all, delete")
     else:
-        service_type = ""
         status = ""
         incident_id = ""
-        Patient_id = ""
         ambulance_id = ""
+        alert_id = ""
         request_time = ""
         accepted_time = ""
         dispatch_time = ""

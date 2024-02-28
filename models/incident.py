@@ -5,8 +5,8 @@ This module contains the Incident class
 from enum import Enum
 from models.ambulance import Ambulance
 from models.base_model import BaseModel
-from models.system_user import Patient_119 as Patient
-from sqlalchemy import Column, ForeignKey, Integer, String, Float, Table
+from models.system_user import Patient
+from sqlalchemy import Column, ForeignKey, String, Float, Table
 from sqlalchemy.orm import relationship
 import models
 from models.base_model import Base
@@ -15,11 +15,11 @@ from models.alert import Alert
 
 if models.storage_type == "db":
     incident_ambulances = Table('incident_ambulances', Base.metadata,
-                                    Column('ambulance_id', Integer,
+                                    Column('ambulance_id', String(60),
                                             ForeignKey('ambulances.id'),
                                             primary_key=True,
                                             nullable=False),
-                                    Column('incident_id', Integer,
+                                    Column('incident_id', String(60),
                                             ForeignKey('incidents.id'),
                                             primary_key=True,
                                             nullable=False)

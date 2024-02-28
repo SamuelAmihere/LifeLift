@@ -10,32 +10,32 @@ from sqlalchemy.orm import relationship
 # between locations and ambulances
 if models.storage_type == "db":
     location_sites = Table('location_sites', Base.metadata,
-                                Column('location_id', Integer,
+                                Column('location_id', String(60),
                                     ForeignKey('locations.id'),
                                     primary_key=True,
                                     nullable=False),
-                                Column('site_id', Integer,
+                                Column('site_id', String(60),
                                     ForeignKey('sites.id'),
                                     primary_key=True,
                                     nullable=False)
                                 )
 
     site_alerts = Table('site_alerts', Base.metadata,
-                                Column('site_id', Integer,
+                                Column('site_id', String(60),
                                     ForeignKey('sites.id'),
                                     primary_key=True,
                                     nullable=False),
-                                Column('alert_id', Integer,
+                                Column('alert_id', String(60),
                                     ForeignKey('alerts.id'),
                                     primary_key=True,
                                     nullable=False)
                                 )
     location_hospitals = Table('location_hospitals', Base.metadata,
-                                Column('location_id', Integer,
+                                Column('location_id', String(60),
                                     ForeignKey('locations.id'),
                                     primary_key=True,
                                     nullable=False),
-                                Column('hospital_id', Integer,
+                                Column('hospital_id', String(60),
                                     ForeignKey('hospitals.id'),
                                     primary_key=True,
                                     nullable=False)
@@ -62,7 +62,7 @@ class Site(BaseModel, Base):
     """This is the Site class"""
     if models.storage_type == "db":
         __tablename__ = 'sites'
-        address_id = Column(Integer, ForeignKey('addresses.id'),
+        address_id = Column(String(60), ForeignKey('addresses.id'),
                             nullable=False)
         location_id = Column(String(60), ForeignKey('locations.id'), nullable=False)
         latitude = Column(Float, nullable=False)
