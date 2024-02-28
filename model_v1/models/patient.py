@@ -6,7 +6,7 @@ from models import storage_type
 
 
 class Patient_119(BaseModel, Base):
-    """This is the Patient whoncall on 119"""
+    """This is the Patient class"""
     if storage_type == "db":
         __tablename__ = 'patients'
         full_name = Column(String(100), nullable=False)

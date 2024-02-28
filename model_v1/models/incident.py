@@ -3,9 +3,9 @@
 This module contains the Incident class
 """
 from enum import Enum
-from models.ambulance import Ambulance
 from models.base_model import BaseModel
 from models.patient import Patient_119 as Patient
+from models.ambulance.ambulance import Ambulance
 from sqlalchemy import Column, Integer, String, Float
 from sqlalchemy import Enum, ForeignKey
 from sqlalchemy.orm import relationship

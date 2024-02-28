@@ -1,12 +1,12 @@
 #! /usr/bin/env python3
 
-from models.hospital.hosp_operator import HealthTopic, Hospital
+from models.hosp_operator import HealthTopic, Hospital
 from models.system_user import SystemUser
 from models.patient import Patient_119 as Patient
 from models.location import Location
 from models.ambulance.ambulance import Ambulance
 from models.incident import Incident
-from models.ambulance.ambu_operator import AmbulanceOwner, Driver
+from models.ambu_operator import AmbulanceOwner, Driver
 from models.location import Site, Address
 import models
 

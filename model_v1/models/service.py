@@ -7,6 +7,18 @@ from sqlalchemy import Table
 from models import storage_type
 from models.review import Review, ReviewService
 
+if storage_type == "db":
+    Service_reviews = Table('service_review', Base.metadata,
+                            Column('service_id', Integer,
+                                    ForeignKey('services.id'),
+                                    primary_key=True,
+                                    nullable=False),
+                            Column('review_id', Integer,
+                                    ForeignKey('reviews.id'),
+                                    primary_key=True,
+                                    nullable=False)
+                            )
+
 
 class Service(BaseModel, Base):
     """This is the Service class.
@@ -26,7 +38,8 @@ class Service(BaseModel, Base):
         dispatch_time = Column(String(128), nullable=True)
         arrival_time_pat = Column(String(128), nullable=True)
         arrival_time_hos = Column(String(128), nullable=True)
-        reviews = relationship("ReviewService", backref="service", cascade="all, delete")
+        reviews = relationship("Review", secondary=Service_reviews,
+                               back_populates="services", nullable=True)
     else:
         service_type = ""
         status = ""
