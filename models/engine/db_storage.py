@@ -60,30 +60,56 @@ class DBStorage:
     def new(self, obj):
         """ This method adds a new instance to the session """
         self.__session.add(obj)
+    
+    def new_all(self, *args):
+        """ This method adds all instances to the session """
+        for obj in args:
+            self.__session.add(obj)
 
     def save(self):
         """ This method commits all changes to the database """
         self.__session.commit()
 
+    def execute(self, queries):
+        """ This method executes all queries in the list """
+        for q in queries:
+            self.__session.execute(q)
+
     def delete(self, obj=None):
         """ This method deletes an instance from the session """
         if obj:
             self.__session.delete(obj)
+            self.save()
+
+    def delete_all(self):
+        """ This method deletes all instances from the session """
+        for c in classes:
+            self.__session.query(c).delete()
+        self.save()
 
     def reload(self):
         """ This method creates all tables in the database """
         Base.metadata.create_all(self.__engine)
-        session_factory = sessionmaker(bind=self.__engine, expire_on_commit=False)
+        session_factory = sessionmaker(bind=self.__engine,
+                                       expire_on_commit=False)
         Session = scoped_session(session_factory)
         self.__session = Session()
 
     def close(self):
         """ This method closes the session """
-        self.__session.close()
+        self.__session.remove()
 
     def get(self, cls, id):
-        """ This method retrieves an instance from the session """
-        return self.__session.query(cls).get(id)
+        """ This method retrieves an instance from the session
+        Args:
+            cls (str): The class name
+            id (str): The instance id
+        Returns: The instance or None
+        """
+        if id is None or cls is None:
+            return None
+        objs = self. all(cls)
+        return objs.get('{}.{}'.format(cls, id))
     
     def count(self, cls=None):
         """ This method returns the number of instances of a class """
@@ -94,59 +120,63 @@ class DBStorage:
             for c in classes:
                 count += self.__session.query(c).count()
             return count
-        
+    
     def get_all(self, cls):
         """ This method returns a list of all instances of a class """
-        return self.__session.query(cls).all()
-    
-    def get_first(self, cls):
-        """ This method returns the first instance of a class """
-        return self.__session.query(cls).first()
-    
-    def get_last(self, cls):
-        """ This method returns the last instance of a class """
-        return self.__session.query(cls).order_by(cls.id.desc()).first()
+        if cls:
+            return list(self.all(cls).values())
+        return None
     
     def get_by(self, cls, **kwargs):
-        """ This method returns the first instance of a class that meets the criteria """
-        return self.__session.query(cls).filter_by(**kwargs).first()
+        """ This method returns a list of instances of a class that match the keyword arguments """
+        if cls:
+            return self.__session.query(cls).filter_by(**kwargs).all()
+        return None
+
+    def get_one_by(self, cls, **kwargs):
+        """ This method returns the first instance of a class that matches the keyword arguments """
+        if cls:
+            return self.__session.query(cls).filter_by(**kwargs).first()
+        return None
     
-    def get_all_by(self, cls, **kwargs):
-        """ This method returns a list of all instances of a class that meet the criteria """
-        return self.__session.query(cls).filter_by(**kwargs).all()
+    def get_or_create(self, cls, **kwargs):
+        """ This method returns the first instance of a class that matches the keyword arguments
+        or creates a new instance if one does not exist """
+        instance = self.get_one_by(cls, **kwargs)
+        if instance is None:
+            instance = cls(**kwargs)
+            self.new(instance)
+            self.save()
+        return instance
     
-    def get_count_by(self, cls, **kwargs):
-        """ This method returns the number of instances of a class that meet the criteria """
-        return self.__session.query(cls).filter_by(**kwargs).count()
+    def get_or_create_all(self, cls, *args):
+        """ This method returns a list of instances of a class that match the keyword arguments
+        or creates new instances if they do not exist """
+        instances = []
+        for kwargs in args:
+            instance = self.get_or_create(cls, **kwargs)
+            instances.append(instance)
+        return instances
     
-    def get_all_by_order(self, cls, order):
-        """ This method returns a list of all instances of a class in a specific order """
-        return self.__session.query(cls).order_by(order).all()
-    
-    def get_all_by_order_desc(self, cls, order):
-        """ This method returns a list of all instances of a class in a specific order """
-        return self.__session.query(cls).order_by(order.desc()).all()
-    
-    def get_all_by_order_by(self, cls, order, by):
-        """ This method returns a list of all instances of a class in a specific order """
-        return self.__session.query(cls).order_by(order).order_by(by).all()
-    
-    def get_all_by_order_by_desc(self, cls, order, by):
-        """ This method returns a list of all instances of a class in a specific order """
-        return self.__session.query(cls).order_by(order.desc()).order_by(by.desc()).all()
-    
-    def get_all_by_order_by_order(self, cls, order, by, order2):
-        """ This method returns a list of all instances of a class in a specific order """
-        return self.__session.query(cls).order_by(order).order_by(by).order_by(order2).all()
-    
-    def get_all_by_order_by_order_desc(self, cls, order, by, order2):
-        """ This method returns a list of all instances of a class in a specific order """
-        return self.__session.query(cls).order_by(order.desc()).order_by(by.desc()).order_by(order2.desc()).all()
-    
-    def get_all_by_order_by_order_by(self, cls, order, by, order2, by2):
-        """ This method returns a list of all instances of a class in a specific order """
-        return self.__session.query(cls).order_by(order).order_by(by).order_by(order2).order_by(by2).all()
-    
-    def get_all_by_order_by_order_by_desc(self, cls, order, by, order2, by2):
-        """ This method returns a list of all instances of a class in a specific order """
-        return self.__session.query(cls).order_by(order.desc()).order_by(by.desc()).order_by(order2.desc()).order_by(by2.desc()).all()
+    def get_or_create_by(self, cls, **kwargs):
+        """ This method returns the first instance of a class that matches the keyword arguments
+        or creates a new instance if one does not exist """
+        if cls:
+            instance = self.get_one_by(cls, **kwargs)
+            if instance is None:
+                instance = cls(**kwargs)
+                self.new(instance)
+                self.save()
+            return instance
+        return None
+
+    def get_or_create_all_by(self, cls, *args):
+        """ This method returns a list of instances of a class that match the keyword arguments
+        or creates new instances if they do not exist """
+        if cls:
+            instances = []
+            for kwargs in args:
+                instance = self.get_or_create_by(cls, **kwargs)
+                if instance:
+                    instances.append(instance)
+            return instances

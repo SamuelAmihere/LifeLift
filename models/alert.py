@@ -1,11 +1,13 @@
 #! /usr/bin/env python3
 """This module contains the Alert class"""
 from models.base_model import BaseModel, Base
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, String
 from sqlalchemy import ForeignKey, Enum
 from sqlalchemy.orm import relationship
 from models import storage_type
-from location import site_alerts
+
+if storage_type == "db":
+    from location import site_alerts
 
 
 class Alert(BaseModel, Base):

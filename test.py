@@ -140,11 +140,57 @@
 # user1.save()
 
 # print(user1)
-import  requests
-try:
-    response = requests.get('http://ipinfo.io')
-    data = response.json()
-    print([float(i) for i in data['loc'].split(',')])
-except Exception as e:
-    print(e)
-    print([0, 0])
+
+from models.ambulance import Ambulance
+from models.location import Location, Site
+from models.user import User
+from models.system_user import Driver, InternalUser, Patient
+from test2 import AmbulanceOwner
+
+user = User()
+user.user_name = "sam"
+user.user_type = "admin"
+
+user.save()
+
+int_user1 = InternalUser(user_name="sam", user_id=user.id)
+
+int_user1.save()
+
+#driver
+dr_user = User()
+dr_user.user_name = "sam"
+dr_user.user_type = "driver"
+dr_user.save()
+
+
+# operator
+op1 = AmbulanceOwner(name="Operator 1", email="hhj", phone="08012345678")
+op1.save()
+
+#ambulance
+amb1 = Ambulance(ambulance_type="Type 1", ambulance_owner_id=op1.id, registration_number="GHS-1234")
+amb1.ambu_owner_id = op1.id
+amb1.save()
+
+driver1 = Driver(name="Driver 1", email="kjhgj90", phone="08012345678", first_name="Samuel", last_name="Amihere")
+
+op1.ambulances = amb1.id
+
+amb1.save()
+
+add1 = 
+
+
+s1 = Site(name="Site 1", address="0ddc6b59-465a-4b5b-970c-1a63cae880b8",
+          latitude=6.5244, longitude=3.3792)
+s1.active_ambulances = "0ddc6b59-465a-4b5b-970c-1a63cae880b8"
+
+p1_loc = Location(latitude=6.5244, longitude=3.3792, radius=1000)
+p1_loc.sites = ["0ddc6b59-465a-4b5b-970c-1a63cae880b8"]
+
+p1 = Patient(user_name="sam", user_id=user.id, full_name="Samuel Amihere",
+             email="hgg", phone="08012345678",
+             location_id="0ddc6b59-465a-4b5b-970c-1a63cae880b8",
+             address_id="0ddc6b59-465a-4b5b-970c-1a63cae880b8", 
+             relative_phone="08012345678")

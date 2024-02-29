@@ -6,8 +6,10 @@ from models.base_model import Base, BaseModel
 from sqlalchemy import Column, Float, Integer, String, Enum
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
-from models.incident import incident_ambulances
 from models.utils.support import distance, get_current_lat_lon
+
+if models.storage_type == "db":
+    from models.incident import incident_ambulances
 
 
 class Ambulance(BaseModel, Base):

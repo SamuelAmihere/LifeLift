@@ -6,7 +6,9 @@ from sqlalchemy import Column, ForeignKey, String, Float
 from sqlalchemy.orm import relationship
 from models.company import Company
 from models.system_user import Staff
-from models.location import location_hospitals
+
+if models.storage_type == "db":
+    from models.location import location_hospitals
 
 class HealthTopic(BaseModel, Base):
     """This is the Health Topic class"""

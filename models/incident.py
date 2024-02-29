@@ -3,14 +3,11 @@
 This module contains the Incident class
 """
 from enum import Enum
-from models.ambulance import Ambulance
 from models.base_model import BaseModel
-from models.system_user import Patient
 from sqlalchemy import Column, ForeignKey, String, Float, Table
 from sqlalchemy.orm import relationship
 import models
 from models.base_model import Base
-from models.alert import Alert
 
 
 if models.storage_type == "db":
@@ -82,18 +79,18 @@ class Incident(BaseModel, Base):
        @alerts.setter
        def alerts(self, value):
            """Setter for alerts"""
-           if isinstance(value, Alert) and value not in self.available_alerts:
+           if isinstance(value, str) and value not in self.available_alerts:
                self.available_alerts.append(value)
            
-       
+       available_alerts
        @patients.setter
        def patients(self, value):
            """Setter for patients"""
-           if isinstance(value, Patient) and value not in self.available_patients:
+           if isinstance(value, str) and value not in self.available_patients:
                self.available_patients.append(value)
 
        @ambulances.setter
        def ambulances(self, value):
            """Setter for ambulances"""
-           if isinstance(value, Ambulance) and value not in self.current_ambulances:
+           if isinstance(value, str) and value not in self.current_ambulances:
                self.current_ambulances.append(value)
