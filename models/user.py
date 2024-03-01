@@ -22,6 +22,7 @@ class User(BaseModel, Base):
         user_name = ""
         hashed_password = ""
         user_type = ""
+        salt = ""
 
     @staticmethod
     def generate_salt():
