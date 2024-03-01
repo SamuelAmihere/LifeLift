@@ -17,7 +17,7 @@ class User(BaseModel, Base):
         user_name = Column(String(128), nullable=False)
         hashed_password = Column(String(128), nullable=False)
         user_type = Column(Enum('admin', 'company', 'nurse', 'driver'), nullable=False)
-        salt = Column(String)
+        salt = Column(String(128), nullable=False)
     else:
         user_name = ""
         hashed_password = ""

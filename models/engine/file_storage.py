@@ -122,3 +122,20 @@ class FileStorage:
             count = len(models.storage.all(cls).values())
 
         return count
+    
+    # get_by method
+
+    def get_by(self, cls, *args, **kwargs):
+        """
+        Returns the object based on the class name and its ID, or
+        None if not found
+        """
+        if cls not in classes.values():
+            return None
+
+        all_cls = models.storage.all(cls)
+        for value in all_cls.values():
+            if all(getattr(value, key) == val for key, val in kwargs.items()):
+                return value
+
+        return None

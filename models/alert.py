@@ -6,19 +6,21 @@ from sqlalchemy import ForeignKey, Enum
 from sqlalchemy.orm import relationship
 from models import storage_type
 
-if storage_type == "db":
-    from location import site_alerts
-
 
 class Alert(BaseModel, Base):
     """This is the Alert class"""
     if storage_type == "db":
         __tablename__ = 'alerts'
-        incident_id = Column(String(60), ForeignKey('incidents.id'),
-                             nullable=False)
         alert_type = Column(String(100), nullable=False)
         alert_status = Column(Enum('comfirmed', 'pending', 'resolved'), nullable=False)
-        sites = relationship(site_alerts, backref="sites")
+        hospital_id = Column(String(60), ForeignKey('hospitals.id'),
+                             nullable=False)
+        incident_id = Column(String(60), ForeignKey('incidents.id'),
+                             nullable=False)
+        site_id = Column(String(60), ForeignKey('sites.id'), nullable=False)
+        hospital = relationship("Hospital", back_populates="alerts", cascade="delete")
+        site = relationship("Site", back_populates="alerts")
+        incident = relationship("Incident", back_populates="alerts", cascade="delete")
     else:
         incident_id = ""
         alert_type = ""

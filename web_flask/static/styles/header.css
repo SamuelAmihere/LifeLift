@@ -1,0 +1,52 @@
+@charset "UTF-8";
+/* CSS Document */
+header {
+    background: rgb(237, 215, 215);
+    height: 40px;
+    width: 100%;
+    align-items: flex-end;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background-image: url("../images/logo.png");
+    background-repeat: no-repeat;
+    border-bottom: 1px solid #CCCCCC;
+    background-position: 20px 50%;
+}
+
+/* Path: web_flask/static/styles/css/footer.css */
+
+#api_status {
+    margin-right: 20px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: #CCCCCC;
+}
+
+#api_status.available {
+    background-color:  rgb(214, 166, 166);
+  }
+
+.navbar {
+    display: flex;
+    justify-content: center; /* Center items horizontally */
+    align-items: center; /* Center items vertically */
+  }
+  
+  .nav-links ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+  }
+  
+  .nav-links li {
+    margin-right: 10px; /* Adjust spacing between items */
+  }
+  
+  .nav-links a {
+    text-decoration: none;
+    color: black;
+  }
+  

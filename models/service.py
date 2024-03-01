@@ -33,7 +33,7 @@ class Service(BaseModel, Base):
         dispatch_time = Column(DateTime, nullable=True) # update by ambulance at dispatch
         arrival_time_pat = Column(String(128), nullable=True) # update by ambulance at patient
         arrival_time_hos = Column(String(128), nullable=True) # update by ambulance at hospital
-        reviews = relationship("ReviewService", backref="services", cascade="all, delete")
+        review_services = relationship("ReviewService", back_populates="service", cascade="delete")
     else:
         status = ""
         incident_id = ""

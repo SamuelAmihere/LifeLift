@@ -19,24 +19,27 @@ class HealthTopic(BaseModel, Base):
         topic = ""
 
 
-class StaffMessage(BaseModel, Base):
+class HealthMessage(BaseModel, Base):
     """This is the Health Topic message class"""
     if models.storage_type == "db":
-        __tablename__ = 'staff_messages'
+        __tablename__ = 'health_messages'
         health_topic_id = Column(String(60), ForeignKey('health_topics.id'),
                                  nullable=False)
-        staff_id = Column(String(60), ForeignKey('hospital_staff.id'),
+        hospital_staff_id = Column(String(60), ForeignKey('hospital_staff.id'),
                           nullable=False)
+        hospital_staff = relationship("HospitalStaff", back_populates="health_messages")
         message = Column(String(2000), nullable=False)
 
 
-class HospitalStaff(Staff):
+class HospitalStaff(BaseModel, Base):
     """This is the Hospital Staff class"""
     if models.storage_type == "db":
         __tablename__ = 'hospital_staff'
-        health_messages = relationship("StaffMessage",
-                                       backref="hospital_staff")
+        staff_id = Column(String(60), ForeignKey('staff.id'), nullable=False)
+        health_messages = relationship("HealthMessage", back_populates="hospital_staff",
+                                       cascade="delete")
     else:
+        staff_id = ""
         health_messages = []
 
         @property
@@ -57,17 +60,19 @@ class HospitalStaff(Staff):
                 self.health_messages = value
 
 
-class Hospital(Company):
+class Hospital(BaseModel, Base):
     """This is the Hospital Operator class"""
     if models.storage_type == "db":
         __tablename__ = 'hospitals'
+        company_id = Column(String(60), ForeignKey('companies.id'),
+                            nullable=False)
         latitude = Column(Float, nullable=False)
         longitude = Column(Float, nullable=False)
-        alerts = relationship("Alert", backref="hospital",
-                              cascade="all, delete-orphan",
-                              nullable=True)
-        locations = relationship(location_hospitals, backref="hospital_staff")
+        alerts = relationship("Alert", back_populates="hospital",
+                              cascade="delete")
+        locations = relationship("Location", secondary=location_hospitals, back_populates="hospitals")
     else:
+        company_id = ""
         latitude = ""
         longitude = ""
         active_alerts = []

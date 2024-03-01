@@ -4,15 +4,16 @@ from os import getenv
 from models.base_model import Base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
+from models.service import Service
 from models.system_user import  Patient
-from models.review import Review
+from models.review import Review, ReviewService
 from models.ambulance import Ambulance
 from models.ambu_operator import AmbulanceOwner
 from models.system_user import Driver, Dispatcher, Staff
 from models.user import User
-from models.hosp_operator import Hospital, HealthTopic
+from models.hosp_operator import HealthMessage, Hospital, HealthTopic
 from models.hosp_operator import HospitalStaff
-from models.location import Address
+from models.location import Address, Location, Site
 from models.alert import Alert
 from models.incident import Incident
 from dotenv import load_dotenv
@@ -20,9 +21,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 classes= [
-    Patient, Review, Ambulance,
-    AmbulanceOwner, Driver, Dispatcher,
-    Staff, User, Hospital, HealthTopic,
+    Patient, Review, Service, ReviewService, Ambulance,
+    AmbulanceOwner, Driver, Dispatcher, Site, Location,
+    Staff, User, Hospital, HealthTopic, HealthMessage,
     HospitalStaff, Address, Alert, Incident
     ]
 
@@ -53,7 +54,7 @@ class DBStorage:
         else:
             for c in classes:
                 for obj in self.__session.query(c):
-                    key = '{}.{}'.format(obj.__class__.__name__, obj.id)
+                    key = '{}.{}'.format(type(obj).__name__, obj.id)
                     new_dict[key] = obj
         return new_dict
     

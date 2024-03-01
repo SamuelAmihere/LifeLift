@@ -19,8 +19,8 @@ class Company(BaseModel, Base):
         phone_number = Column(String(128), nullable=True)
         address_id = Column(String(60), ForeignKey('addresses.id'), nullable=False)
         status = Column(Enum('active', 'inactive'), default='active')
-        staff = relationship("Staff", backref="company", cascade="delete")
-        ambulances = relationship("Ambulance", backref="company", cascade="delete")
+        staff = relationship("Staff", back_populates="company", cascade="delete")
+        ambulances = relationship("Ambulance", back_populates="company", cascade="delete")
     else:
         email = ""
         email = ""

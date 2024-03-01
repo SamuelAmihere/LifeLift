@@ -2,9 +2,8 @@
 """
 This module contains the Incident class
 """
-from enum import Enum
 from models.base_model import BaseModel
-from sqlalchemy import Column, ForeignKey, String, Float, Table
+from sqlalchemy import Column, ForeignKey, Enum, String, Float, Table
 from sqlalchemy.orm import relationship
 import models
 from models.base_model import Base
@@ -34,14 +33,11 @@ class Incident(BaseModel, Base):
                                    default='Pending')
        incident_description = Column(String(100), nullable=False)
        patients = relationship("Patient", backref="incidents",
-                               cascade="delete",
-                               nullable = True)
+                               cascade="delete")
        ambulances = relationship("Ambulance", secondary=incident_ambulances,
-                                backref="incidents", cascade="delete",
-                                nullable = True)
-       alerts = relationship("Alert", backref="incidents",
-                             cascade="delete",
-                               nullable = True)
+                                back_populates="incidents", cascade="delete")
+       alerts = relationship("Alert", back_populates="incident",
+                             cascade="delete")
     else:
        incident_type = ""
        latitude = 0.0

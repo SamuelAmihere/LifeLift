@@ -20,16 +20,6 @@ if models.storage_type == "db":
                                     nullable=False)
                                 )
 
-    site_alerts = Table('site_alerts', Base.metadata,
-                                Column('site_id', String(60),
-                                    ForeignKey('sites.id'),
-                                    primary_key=True,
-                                    nullable=False),
-                                Column('alert_id', String(60),
-                                    ForeignKey('alerts.id'),
-                                    primary_key=True,
-                                    nullable=False)
-                                )
     location_hospitals = Table('location_hospitals', Base.metadata,
                                 Column('location_id', String(60),
                                     ForeignKey('locations.id'),
@@ -67,11 +57,10 @@ class Site(BaseModel, Base):
         location_id = Column(String(60), ForeignKey('locations.id'), nullable=False)
         latitude = Column(Float, nullable=False)
         longitude = Column(Float, nullable=False)
-        ambulances = relationship("Ambulance", backref="site",
-                                    nullable=True)
-        alerts = relationship("Alert", secondary=site_alerts,
-                                viewonly=False, nullable=True)
-        locations = relationship(location_sites, backref="sites")
+        ambulances = relationship("Ambulance", back_populates="site")
+        alerts = relationship("Alert", back_populates="site", cascade="delete")
+        locations = relationship("Location", secondary=location_sites,
+                                viewonly=False, back_populates="sites")
     else:
         address_id = ""
         latitude = ""
@@ -142,9 +131,8 @@ class Location(BaseModel, Base):
         latitude = Column(Float, nullable=False)
         longitude = Column(Float, nullable=False)
         radius = Column(Float, nullable=False)
-        hospitals = relationship("Hospital",
-                                    backref="location", 
-                                    nullable=True)
+        hospitals = relationship("Hospital", secondary=location_hospitals,
+                                viewonly=False, back_populates="locations")
         sites = relationship("Site", secondary=location_sites,
                                 viewonly=False, backref="location")
     else:

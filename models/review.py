@@ -3,6 +3,7 @@
 from sqlalchemy.ext.declarative import declarative_base
 from models.base_model import BaseModel, Base
 from sqlalchemy import Column, String, ForeignKey, Float
+from sqlalchemy.orm import relationship
 from models import storage_type
 
 
@@ -19,31 +20,37 @@ class Review(BaseModel, Base):
         stars = 0.0
 
 
-class ReviewSystemUser(Review):
+class ReviewSystemUser(BaseModel, Base ):
     """This is the class for Review by system user
     """
     if storage_type == "db":
         __tablename__ = "review_systemUsers"
+        review_id = Column(String(60), ForeignKey('reviews.id'),
+                           nullable=False)
         internal_user_id = Column(String(60),
                           ForeignKey('internal_users.id'),
                           nullable=False,
                           primary_key=True)
     else:
-        pass
+        review_id = ""
+        internal_user_id = ""
 
 
-class ReviewService(Review):
+class ReviewService(BaseModel, Base):
     """This is the class for Review by service user
     """
     if storage_type == "db":
         __tablename__ = "review_services"
+        review_id = Column(String(60), ForeignKey('reviews.id'),
+                           nullable=False)
         patient_id = Column(String(60),
                           ForeignKey('patients.id'),
                           nullable=False,
                           primary_key=True)
-        service_id = Column(String(60),
-                          ForeignKey('service.id'),
-                          nullable=False,
-                          primary_key=True)
+        service_id = Column(String(60), ForeignKey('services.id'),
+                            nullable=False)
+        service = relationship("Service", back_populates="review_services")
     else:
-        pass
+        review_id = ""
+        patient_id = ""
+        service_id = ""

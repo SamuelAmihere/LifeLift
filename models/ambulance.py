@@ -3,7 +3,7 @@
 from datetime import datetime
 import models
 from models.base_model import Base, BaseModel
-from sqlalchemy import Column, Float, Integer, String, Enum
+from sqlalchemy import Column, Float, Integer, String, Enum, Table
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
 from models.utils.support import distance, get_current_lat_lon
@@ -17,17 +17,17 @@ class Ambulance(BaseModel, Base):
     if models.storage_type == "db":
         __tablename__ = 'ambulances'
         registration_number = Column(String(20), nullable=False)
-        site_id = Column(String(60), ForeignKey('sites.id'),nullable=False)
         model = Column(String(50))
         capacity = Column(Integer, nullable=True, default=0)
         status = Column(Enum('Available', 'Busy', 'Out of Service'),
                         default='Available')
-        operator_id = Column(String(60), ForeignKey('operators.id'),
-                               nullable=False)
-        staff = relationship("Staff", secondary="ambulance_staff",
-                             back_populates="ambulances", nullable=True)
-        incidents = relationship(incident_ambulances, backref="ambulances",
-                                 nullable=True)
+        site_id = Column(String(60), ForeignKey('sites.id'),nullable=False)
+        company_id = Column(String(60), ForeignKey('companies.id'), nullable=False)
+        site = relationship("Site", back_populates="ambulances", cascade="delete")
+        company = relationship("Company", back_populates="ambulances", cascade="delete")
+        ambulance_staff = relationship("AmbulanceStaff", back_populates="ambulance", cascade="delete")
+        incidents = relationship("Incident", secondary=incident_ambulances,
+                                 back_populates="ambulances", cascade="delete")
     else:
         registration_number = ""
         model = ""
@@ -50,7 +50,7 @@ class Ambulance(BaseModel, Base):
                 self.staff.append(value)
         
 
-class ActiveAmbulance(Ambulance):
+class ActiveAmbulance(BaseModel, Base):
     """This is the ActiveAmbulance class
     1. It inherits from the Ambulance class
     2. Tasks:
@@ -64,11 +64,13 @@ class ActiveAmbulance(Ambulance):
     """
     if models.storage_type == "db":
         __tablename__ = 'active_ambulances'
+        ambulance_id = Column(String(60), ForeignKey('ambulances.id'), nullable=False)
         alert_id = Column(String(60), ForeignKey('alerts.id'), nullable=False)
         current_lat = Column(Float, nullable=False)
         current_lon = Column(Float, nullable=False)
         destination = Column(String(60), ForeignKey('hospitals.id'), nullable=False)
     else:
+        ambulance_id = ""
         alert_id = ""
         current_lat = 0
         current_lon = 0
