@@ -1,12 +1,13 @@
 footer {
-	background: #121212;
+	background: rgb(246, 244, 244);
 	height: 50px;
 	line-height: 50px;
 	width: 100%;
 	bottom: 0px;
 	position: fixed;
 	text-align: center;
-	border-top: 1px solid #CCCCCC;
+	border-top: 1px solid #640303;
+	color: #640303;
     opacity: 0.7;
 }
 

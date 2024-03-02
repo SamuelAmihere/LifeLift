@@ -1,0 +1,64 @@
+{% extends 'layout.html' %}
+
+{% block head %}
+<!-- leaflet css -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+     crossorigin=""/>
+
+<!-- leaflet js -->
+ <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+     crossorigin=""></script>
+ 
+<link rel="stylesheet" href="{{ url_for('static', filename='../static/styles/home.css') }}">
+<!-- <script src="../static/styles/js/home.js"></script> -->
+{% endblock %}
+
+{% block nav %}
+
+<a class="nav-link active" aria-current="page"  href="/home">Home</a>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="/ambulance">Ambulance</a>
+</li>
+<li class="nav-item dropdown">
+  <a class="nav-link dropdown-toggle" href="/hospital" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Hospital
+  </a>
+  <ul class="dropdown-menu">
+    <li><a class="dropdown-item" href="#">Action</a></li>
+    <li><a class="dropdown-item" href="#">Another action</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="#">Something else here</a></li>
+  </ul>
+</li>
+{% endblock %}
+
+
+
+{% block content %}
+
+<div id="call-199">
+    <h1>Call 199</h1>
+    <p>Call 199 for emergency services</p>
+
+</div>
+
+
+<div id="map"></div>
+
+
+<script>
+    var map = L.map('map').setView([51.505, -0.09], 13);
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+}).addTo(map);
+
+</script>
+    
+    {% endblock %}
+    
+    {% block footer %}
+<!-- {% endblock %} -->
