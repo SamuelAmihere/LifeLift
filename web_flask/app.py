@@ -26,6 +26,12 @@ personN_err = {
     'phone_number': 'Missing phone_number'
 }
 
+# Admin page
+@app.route('/admin', methods=['GET'])
+def admin():
+    """Admin page"""
+    return (render_template('admin.html'))
+
 # Home page
 @app.route('/', methods=['GET'])
 @app.route('/home', methods=['GET'])
