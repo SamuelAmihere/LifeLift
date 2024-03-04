@@ -13,6 +13,7 @@
       
      
     {% block header %}{% endblock %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='../static/styles/forms.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='../static/styles/content.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='../static/styles/commons.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='../static/styles/header.css') }}">
@@ -81,10 +82,17 @@
               </li>
               {% endblock %}
             </ul>
-            <form class="d-flex" role="search">
-              <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-              <button class="btn btn-outline-success nav-btn-loc" type="submit">Search</button>
-            </form>
+            {% block navLogin %}
+              <!-- <div class="navlogin">
+              <form class="login-form">
+              <input type="text" placeholder="Username">
+              <input type="password" placeholder="Password">
+              <button type="submit">Login</button>
+              </form>
+            </div> -->
+            {% endblock %}
+            
+            
           </div>
         </div>
       </nav>
@@ -106,47 +114,12 @@
         <div id="map"></div>
       </div>
 
-      <div class="split right">
-        <table id="ambus">
-          <tr>
-            <td>
-              <div class="card">
-                <img src="https://images.pexels.com/photos/8943254/pexels-photo-8943254.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" alt="Avatar">
-                <div class="container">
-                  <h4><a href=""><b>Location</b></a></h4>
-                  <p>Operature 1</p>
-                </div>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <div class="card">
-                <img src="https://images.pexels.com/photos/3584099/pexels-photo-3584099.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" alt="Avatar">
-                <div class="container">
-                  <h4><a href=""><b>Location</b></a></h4>
-                  <p>John Doe</p>
-                </div>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <div class="card">
-                <img src="../static/images/ambulance.jpg" alt="Avatar" style="width:100%">
-                <div class="container">
-                  <h4><b>John Doe</b></h4>
-                  <p>Architect & Engineer</p>
-                </div>
-              </div>
-            </td>
-            <div>
-              
-            </div>
-          </tr>
-        </table>
 
       </div>
+      {% block content %}
+     
+      {% endblock %}
+
 
       
 
