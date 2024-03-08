@@ -38,11 +38,14 @@ class Patient(BaseModel, Base):
         relative_phone = Column(String(20), nullable=True)
         incident_id = Column(String(60), ForeignKey('incidents.id'),
                              nullable=True)
+        address = relationship("Address", back_populates="patients")
+
     else:
         address_id = ""
         relative_phone = ""
         incident_id = ""
         person_id = ""
+        address = ""
 
 
 class InternalUser(BaseModel, Base):

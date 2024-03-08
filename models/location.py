@@ -40,12 +40,15 @@ class Address(BaseModel, Base):
         state = Column(String(100), nullable=False)
         zipcode = Column(String(100), nullable=False)
         country = Column(String(100), nullable=False)
+        patients = relationship("Patient", back_populates="address",
+                                cascade="delete")
     else:
         street = ""
         city = ""
         state = ""
         zipcode = ""
         country = ""
+        patients = []
 
 
 class Site(BaseModel, Base):

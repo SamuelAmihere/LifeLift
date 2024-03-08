@@ -1,75 +1,31 @@
 {% extends 'layout.html' %}
 
-{% block nav %}
-
-<a class="nav-link" href="/home">Home</a>
-</li>
-<li class="nav-item">
-  <a class="nav-link" href="/ambulance">Ambulance</a>
-</li>
-<li class="nav-item dropdown">
-    <a class="nav-link dropdown-toggle" href="/hospital" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-      Hospital
-    </a>
-    <ul class="dropdown-menu">
-      <li><a class="dropdown-item" href="#">Action</a></li>
-      <li><a class="dropdown-item" href="#">Another action</a></li>
-      <li><hr class="dropdown-divider"></li>
-      <li><a class="dropdown-item" href="#">Something else here</a></li>
-    </ul>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link active" aria-current="page" href="/admin">Admin</a>
-  </li>
-{% endblock %}
 
 
 {% block content %}
 
-{% block navLogin %}
-
-{% endblock %}
-<div class="split right right-ambu">
-  <table id="ambus">
+<div class="split right-admin">
+  <h1>Requests</h1>
+  {% if session['user_type'] == 'admin' %}
+      <table id="">
+    <th>
+      {% for key in requests_info[0] %}
+      {{ key }}
+      {% endfor %}
+    </th>
     <tr>
-      <td id="login-header">Login</td>
+      {% for request in requests_info %}
+      <td>{{ request['id'] }}</td>
+      <td>{{ request['user_id'] }}</td>
+      <td>{{ request['ambulance_id'] }}</td>
+      <td>{{ request['hospital_id'] }}</td>
+      <td>{{ request['status'] }}</td>
+      <td>{{ request['created_at'] }}</td>
+      <td>{{ request['updated_at'] }}</td>
     </tr>
-    <tr>
-
-      <td>
-        <div id="login-Main">
-          <form>
-            <div class="form-row align-items-right">
-              <div class="col-auto">
-                <label class="sr-only" for="inlineFormInput">Name</label>
-                <input type="text" class="form-control mb-2" id="inlineFormInput" placeholder="email">
-              </div>
-              <div class="col-auto">
-                <label class="sr-only" for="inlineFormInputGroup">email</label>
-                <div class="input-group mb-2">
-                  <div class="input-group-prepend">
-                    <div class="input-group-text">@</div>
-                  </div>
-                  <input type="text" class="form-control" id="inlineFormInputGroup" placeholder="gmail.com">
-                </div>
-              </div>
-              <div class="col-auto">
-                <div class="form-check mb-1 col-1">
-                  <input class="form-check-input" type="checkbox" id="autoSizingCheck">
-                  <label class="form-check-label" for="autoSizingCheck">
-                    Remember me
-                  </label>
-                </div>
-              </div>
-              <div class="col-auto">
-                <button type="submit" class="btn btn-secondary mb-1">Submit</button>
-              </div>
-            </div>
-          </form>
-        </div>
-      </td>
-      
-    </tr>
+    {% endfor %}
   </table>
+  {% endif %}
+
 </div>
 {% endblock %}

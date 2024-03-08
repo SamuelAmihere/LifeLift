@@ -72,20 +72,12 @@
             <span class="navbar-toggler-icon"></span>
           </button>
           <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            
-
-      {% block nav %}
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-              {% block homePg_nav %}
-                <li class="nav-item"> 
-                  <a class="nav-link" href="/home">Home</a>
-                </li>
-              {% endblock %} <!-- homePg_nav -->
-
-
-              
-              {% if session.user_type == 'admin' %}
               <li class="nav-item">
+                {% block nav %} <!--  -->
+                <a class="nav-link" href="/home">Home</a>
+              </li>
+              <li class="nav-item">'
                 <a class="nav-link" href="/ambulance">Ambulance</a>
               </li>
               <li class="nav-item dropdown">
@@ -99,7 +91,9 @@
                   <li><a class="dropdown-item" href="#">Something else here</a></li>
                 </ul>
               </li>
-              
+            
+                {% endblock %}
+              {% if session.user_type == 'admin' %}
               <li class="nav-item">
                 <a class="nav-link" href="/admin" style="color: blue;">Admin</a>
               </li>
@@ -118,49 +112,41 @@
                 <a class="nav-link" href="/logout"> logout</a>
               </li>
                 {% else %}
-                
 
-                {% block loginPage %}
-              <li class="nav-item">
-                <a class="nav-link" href="/login"> login</a>
-              </li>            
-                {% endblock %} <!-- loginPage -->
-                {% endif %}
-            
-
-
-           
+                  {% block loginPage %}
+                <li class="nav-item">
+                  <a class="nav-link" href="/login"> login</a>
+                </li>            
+                  {% endblock %} <!-- loginPage -->
+                  {% endif %}
+            </ul>
       
-              {% block navLogin %}
-                <!-- <div class="navlogin">
-                <form class="login-form">
-                <input type="text" placeholder="Username">
-                <input type="password" placeholder="Password">
-                <button type="submit">Login</button>
-                </form>
-              </div> -->
-              {% endblock %}
-          </ul>
-      
+            {% block navLogin %}
+              <!-- <div class="navlogin">
+              <form class="login-form">
+              <input type="text" placeholder="Username">
+              <input type="password" placeholder="Password">
+              <button type="submit">Login</button>
+              </form>
+            </div> -->
+            {% endblock %}
             
             
           </div>
         </div>
       </nav>
-      {% endblock %} <!-- NavBlock -->
 
     </header>
 
     
+
       
       <div class="sub-menu ">
         <div id="call-199" class="active">
-          {% block subMenu %}
             <button id="req">Call 199</button>
-          {% endblock %}
+
         </div>
       </div>
-    
 
       <!-- <section id="sect-sub-header"></section> -->
 
@@ -179,6 +165,19 @@
     
      
       {% endblock %}
+
+
+      
+
+    <!-- </section> -->
+
+    <!-- <script>
+      var map = L.map('map').setView([51.505, -0.09], 13);
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+  }).addTo(map);
+  </script> -->
 
   
   <script>
@@ -393,7 +392,7 @@
           
         }
 
-      // authenticate the request form: 'emergency-form'
+        // authenticate the request form: 'emergency-form'
         // prevent empty fields from being submitted
         document.getElementById('emergency-form').addEventListener('submit', function(e) {
           e.preventDefault();
@@ -403,61 +402,57 @@
           var phone = document.getElementById('phone').value;
           var street = document.getElementById('street').value;
           var relative_phone = document.getElementById('relative_phone').value;
-          var incident_type = document.getElementById('incident_type').value;
-          var incident_description = document.getElementById('incident_description').value;
+          var incident_type = document.getElementById('incident_type').value
+          var incident_description = document.getElementById('incident_description').value
 
-          var fields = {fname: 'fname', lname: 'lname', email: 'email', phone: 'phone', street: 'street', relative_phone: 'relative_phone', incident_type: 'incident_type', incident_description: 'incident_description'};
+          fields = {fname: 'fname', lname: 'lname', email: 'email', phone: 'phone', street: 'street', relative_phone: 'relative_phone'};
           
           // highlight empty fields and stop form submission
 
           // check if any of the fields is empty
-          // for (var i = 0; i < fields.length; i++) {
-          //   if (fields[i] == '') {
-          //     fields[i].style.border = '1px solid red';
-          //     fields[i].style.backgroundColor = 'rgba(255, 0, 0, 0.1)';
+          for (var i = 0; i < fields.length; i++) {
+            if (fields[i] == '') {
+              fields[i].style.border = '1px solid red';
+              fields[i].style.backgroundColor = 'rgba(255, 0, 0, 0.1)';
 
-          //     // highlight the empty field
-          //     fields[i].focus();
-          //     return false;
+              // highlight the empty field
+              fields[i].focus();
+              return false;
 
-          //   } 
-          // }
+            } 
+          }
           // if all fields are filled, submit the form
-          if (fname != '' && lname != '' && email != '' && phone != '' && street != '' && relative_phone != '' && incident_type != '' && incident_description != '') {
+          if (fname != '' && lname != '' && email != '' && phone != '' && street != '' && relative_phone != '') {
             document.getElementById('emergency-form').submit();
           } else {
-            highlightEmptyFields(fields);
+            highlightEmptyFields();
           }
+          
+
+
+
+
 
         }); //END OF EVENT LISTENER: 'emergency-form'
 
+      });//END OF EVENT LISTENER: 'req'
 
-        if (document.getElementById('emergency-form')) {
-        // disable call button until form is submitted
-        document.getElementById('req').disabled = true;
-        }
-      });//END OF EVENT LISTENER
 
       
-    } //END OF EMERGENCY REQUEST FUNCTION
+      
+    } //END OF FUNCTION: emergencyRequest
 
-    
-    function highlightEmptyFields(fields)
-    {
+    function highlightEmptyFields() {
+      var fields = document.getElementById('emergency-form').getElementsByTagName('input');
       for (var i = 0; i < fields.length; i++) {
-        if (fields[i] == '') {
+        if (fields[i].value == '') {
           fields[i].style.border = '1px solid red';
           fields[i].style.backgroundColor = 'rgba(255, 0, 0, 0.1)';
-          console.log(fields[i]);
-
-          // highlight the empty field
           fields[i].focus();
           return false;
-
-        } 
+        }
       }
     }
-
 
     </script>
     

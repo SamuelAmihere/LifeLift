@@ -4,35 +4,9 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='../static/styles/ambulance.css') }}">
 {% endblock %}
 
-{% block nav %}
-
-<a class="nav-link" href="/home">Home</a>
-</li>
-<li class="nav-item">
-  <a class="nav-link active" aria-current="page" href="/ambulance">Ambulance</a>
-</li>
-<li class="nav-item dropdown">
-    <a class="nav-link dropdown-toggle" href="/hospital" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-      Hospital
-    </a>
-    <ul class="dropdown-menu">
-      <li><a class="dropdown-item" href="#">Action</a></li>
-      <li><a class="dropdown-item" href="#">Another action</a></li>
-      <li><hr class="dropdown-divider"></li>
-      <li><a class="dropdown-item" href="#">Something else here</a></li>
-    </ul>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link" href="/admin">Admin</a>
-  </li>
-{% endblock %}
-
-{% block navLogin %}
-
-{% endblock %}
 
 {% block content %}
-<div class="split right">
+<div class="split right-ambu">
 <table id="ambus">
   <th>
     <div class="filter-ambu">

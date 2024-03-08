@@ -49,3 +49,10 @@ def get_current_lat_lon():
     except Exception as e:
         print(e)
         return [0, 0]
+    
+
+def authenticate_inputs(*args):
+    """This function authenticates the inputs"""
+    for i in args:
+        if i == "" or i == None:
+            return ("Missing input")

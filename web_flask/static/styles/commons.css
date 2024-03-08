@@ -24,7 +24,7 @@ body {
 
 .sub-menu {
     margin-top: 105px;
-    height: 27px;
+    height: 35px;
     /* margin-bottom: 1 solid #3a3737; */
     border-bottom: 1px solid #ee9a9a;
     transition: height 0.66s ease-out;
@@ -50,9 +50,20 @@ body {
     /* align-items: center; */
     /* justify-content: center; */
     padding: 0 10px;
+    padding-top: 4px;
+    padding-left: 30%;
     /* border: 1px solid #000; */
     border-radius: 3px;
     margin: 0 10px;
+    position: fixed;
+}
+
+#req:hover {
+    background: #ca0909;
+    color: #fff;
+    transition: 0.3s;
+    cursor: pointer;
+
 }
 
 .split {
@@ -81,9 +92,8 @@ body {
   }
 
   /* Control the right side */
-  .right {
-    padding-bottom: 0;
-    
+  .right-ambu {
+    left: 60%;
     border-style: solid;
     float: right;
     right: 0;
@@ -92,22 +102,29 @@ body {
     padding: 0 0;
   }
 
-  .right-ambu {
-    padding-top: 3px;
-    padding-left: 10px;
+  .right-admin {
+    left: 65%;
+    border-style: solid;
+    float: right;
+    right: 0;
+    position: fixed;
+    width: 60%;
+    padding: 0 0;
+
+    padding-top: 10%;
+    padding-left: 5%;
     /* border-style: solid; */
     align-items: center;
     align-content: center;
-    display: flex;
-    width: 40%;
-    max-width: 40%;
+    /* display: flex; */
+    /* width: 40%; */
+    max-width: 600px;
     float: left;
     /* background: #ca0909; */
   }
 
-
 #map {
-    height: 410px;
+    height: 100%;
     /* margin-bottom: 80px; */
     width: 100%;
     /* margin: 0 10px; */
