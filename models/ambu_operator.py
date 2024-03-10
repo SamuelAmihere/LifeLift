@@ -8,6 +8,18 @@ from models.base_model import Base, BaseModel
 
 class AmbulanceOwner(BaseModel, Base):
     """This is the Ambulance Operator class"""
+    fields_errMSG = {
+        # to create company
+        'name': 'Missing name',
+        'email': 'Missing email',
+        'phone': 'Missing phone_number',
+        'street': 'Missing street',
+        'city': 'Missing city',
+        'state': 'Missing state',
+        'zipcode': 'Missing zipcode',
+        'country': 'Missing country',
+        'status': 'Missing status'
+    }
     if models.storage_type == "db":
         __tablename__ = 'operators'
         company_id = Column(String(60), ForeignKey('companies.id'),

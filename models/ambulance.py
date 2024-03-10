@@ -2,10 +2,14 @@
 """This is the Ambulance module"""
 from datetime import datetime
 import models
+from models.alert import Alert
 from models.base_model import Base, BaseModel
 from sqlalchemy import Column, Float, Integer, String, Enum, Table
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
+from models.company import Company
+from models.hosp_operator import Hospital
+from models.location import Site
 from models.utils.support import distance, get_current_lat_lon
 
 if models.storage_type == "db":
@@ -14,10 +18,20 @@ if models.storage_type == "db":
 
 class Ambulance(BaseModel, Base):
     """This is the Ambulance class"""
+    fields_errMSG = {
+        'registration_number': 'Missing registration number',
+        'model': 'Missing model',
+        'capacity': 'Missing capacity',
+        'status': 'Missing status',
+        # to create site
+        **Site.fields_errMSG,
+        # to create company
+        **Company.fields_errMSG,
+    }
     if models.storage_type == "db":
         __tablename__ = 'ambulances'
         registration_number = Column(String(20), nullable=False)
-        model = Column(String(50))
+        model = Column(String(50), nullable=True)
         capacity = Column(Integer, nullable=True, default=0)
         status = Column(Enum('Available', 'Busy', 'Out of Service'),
                         default='Available')
@@ -62,12 +76,19 @@ class ActiveAmbulance(BaseModel, Base):
         f. Update alert at hospital
 
     """
+    fields_errMSG = {
+        'lat': 'Missing latitude',
+        'lng': 'Missing longitude',
+        **Ambulance.fields_errMSG,
+        **Alert.fields_errMSG,
+        **Hospital.fields_errMSG,
+    }
     if models.storage_type == "db":
         __tablename__ = 'active_ambulances'
         ambulance_id = Column(String(60), ForeignKey('ambulances.id'), nullable=False)
         alert_id = Column(String(60), ForeignKey('alerts.id'), nullable=False)
-        current_lat = Column(Float, nullable=False)
-        current_lon = Column(Float, nullable=False)
+        latitude = Column(Float, nullable=False)
+        longitude = Column(Float, nullable=False)
         destination = Column(String(60), ForeignKey('hospitals.id'), nullable=False)
     else:
         ambulance_id = ""

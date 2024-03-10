@@ -5,6 +5,8 @@ from models.base_model import Base, BaseModel
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy import Float, Table
 from sqlalchemy.orm import relationship
+from models.alert import alert_site
+
 
 # This is the association table for the many-to-many relationship
 # between locations and ambulances
@@ -33,6 +35,13 @@ if models.storage_type == "db":
 
 class Address(BaseModel, Base):
     """This is the Address class"""
+    fields_errMSG = {
+        'street': 'Missing street',
+        'city': 'Missing city',
+        'state': 'Missing state',
+        'zipcode': 'Missing zipcode',
+        'country': 'Missing country',
+        }
     if models.storage_type == "db":
         __tablename__ = 'addresses'
         street = Column(String(100), nullable=False)
@@ -40,7 +49,7 @@ class Address(BaseModel, Base):
         state = Column(String(100), nullable=False)
         zipcode = Column(String(100), nullable=False)
         country = Column(String(100), nullable=False)
-        patients = relationship("Patient", back_populates="address",
+        contacts = relationship("Contact", back_populates="address",
                                 cascade="delete")
     else:
         street = ""
@@ -53,6 +62,20 @@ class Address(BaseModel, Base):
 
 class Site(BaseModel, Base):
     """This is the Site class"""
+    fields_errMSG = {
+        'lat': 'Missing latitude',
+        'lng': 'Missing longitude',
+        # to create address
+        'street': 'Missing street',
+        'city': 'Missing city',
+        'state': 'Missing state',
+        'zipcode': 'Missing zipcode',
+        'country': 'Missing country',        
+        # to create location
+        'lat_loc': 'Missing latitude',
+        'lng_loc': 'Missing longitude',
+        'radius': 'Missing radius',
+    }
     if models.storage_type == "db":
         __tablename__ = 'sites'
         address_id = Column(String(60), ForeignKey('addresses.id'),
@@ -61,7 +84,8 @@ class Site(BaseModel, Base):
         latitude = Column(Float, nullable=False)
         longitude = Column(Float, nullable=False)
         ambulances = relationship("Ambulance", back_populates="site")
-        alerts = relationship("Alert", back_populates="site", cascade="delete")
+        alerts = relationship("Alert", secondary=alert_site,
+                                viewonly=False, back_populates="sites")
         locations = relationship("Location", secondary=location_sites,
                                 viewonly=False, back_populates="sites")
     else:
@@ -129,6 +153,11 @@ class Site(BaseModel, Base):
 
 class Location(BaseModel, Base):
     """This is the Location class"""
+    fields_errMSG = {
+        'lat_loc': 'Missing latitude',
+        'lng_loc': 'Missing longitude',
+        'radius': 'Missing radius',
+    }
     if models.storage_type == "db":
         __tablename__ = 'locations'
         latitude = Column(Float, nullable=False)

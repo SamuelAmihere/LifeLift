@@ -13,10 +13,15 @@ from flasgger import Swagger
 from flask_session import Session
 from models import storage
 from models import storage_type
-from models.system_user import Person
+from models.hosp_operator import Hospital
+from models.incident import Incident
+from models.location import Address
+from models.system_user import Patient, Person
 from models.user import User
-from models.utils.support import authenticate_inputs, get_current_lat_lon
-from models.utils.create_table import CreateExternalUser, CreateUser, login_user, check_by_email
+from models.utils.create_companies import create_hospitals
+from models.utils.google import nearby_hospitals, read_hospital_data_json
+from models.utils.sign_up import SignUp
+from models.utils.create_table import CreateExternalUser, CreateUser, login_user
 
 app = Flask(__name__)
 app.secret_key = 'super secret key'
@@ -35,54 +40,23 @@ GOOGLEMAP_API_KEY = os.getenv('GOOGLEMAP_API_KEY')
 
 # Siging up
 details_msg = {
-    'fname': 'Missing first name',
-    'lname': 'Missing last name',
-    'email': 'Missing email',
-    'phone': 'Missing phone number',
-    'gender': 'Missing gender',
     'staffNum': 'Missing staff number',
     'password': 'Missing password',
-    'gender': 'Missing gender',
     'userType': 'Missing user type',
 }
+details_msg.update(Person.fields_errMSG)
+address_msg = Address.fields_errMSG
+incident_msg = Incident.fields_errMSG
+person_msg = Person.fields_errMSG
+patient_msg = Patient.fields_errMSG
 
-# Address
-address_msg = {
-    'street': 'Missing street',
-    'city': 'Missing city',
-    'state': 'Missing state',
-    'zipcode': 'Missing zipcode',
-    'country': 'Missing country',
-}
-incident_msg = {
-    'incident_type': 'Missing incident',
-    'incident_description': 'Missing description',
-}
 # Patient request
-request_msg = {
-    'lat': 'Missing latitude',
-    'lng': 'Missing longitude',
-
-    'fname': 'Missing first name',
-    'lname': 'Missing last name',
-    'name': 'Missing name',
-    'email': 'Missing email',
-    'phone': 'Missing phone number',
-    'gender': 'Missing gender',
-    'relative_phone': 'Missing relative phone number',
-
-    'street': 'Missing street',
-    'city': 'Missing city',
-    'state': 'Missing state',
-    'zipcode': 'Missing zipcode',
-    'country': 'Missing country',
-
-    'incident_type': 'Missing incident',
-    'incident_description': 'Missing description',
-
-}
-data = {}
-
+request_msg = {**address_msg,
+               **person_msg,
+               **patient_msg,
+               **incident_msg,
+               'name': 'Missing name',
+               }
 # login
 login_msg = {
     'user_name': 'Missing user name',
@@ -91,16 +65,23 @@ login_msg = {
 }
 
 
+data = {} # store the data from the form
 
 # Admin page
 @app.route('/admin', methods=['GET'])
 def admin():
     """Admin page"""
-    if session["user_name"] == None:
+    # if session["user_name"] == None:
+    session["user_name"]='amisam2000@gmail.com'
+    session["user_type"]='admin'
         # if not there in the session then redirect to the login page
-        return redirect("/login")
+        # return redirect("/login")
+    data_hospitals = storage.all(Hospital)
+    hospitals = list(obj.to_dict() for obj in data_hospitals.values())
+    # print("data_hospitals: ", hospitals)
+
     return (render_template('admin.html',
-                            requests_info={},
+                            hospitals=hospitals,
                             GOOGLEMAP_API_KEY=GOOGLEMAP_API_KEY))
 
 # Home page
@@ -108,6 +89,9 @@ def admin():
 @app.route('/home', methods=['GET'])
 def home():
     """Home page"""
+
+    # create_hospitals('data/hospitals_data.json')
+
     return (render_template('home.html',incident_type=['Health', 'Accident', 'Fire', 'Robbery', 'Others'],
                             GOOGLEMAP_API_KEY=GOOGLEMAP_API_KEY))
 
@@ -123,7 +107,6 @@ def map():
 def ambulance():
     """Ambulance page"""
     return (render_template('ambu.html', GOOGLEMAP_API_KEY=GOOGLEMAP_API_KEY))
-
 
 # Emergency request
 @app.route('/emergency_request', methods=['POST'])
@@ -156,42 +139,22 @@ def emergency_request():
       
             print("data: ",data_final)
 
-            person={
-                "fname": data_final['fname'],
-                "lname": data_final['lname'],
-                "email": data_final['email'],
-                "phone": data_final['phone'],
-                "gender": data_final['gender'],
-            }
-            address={
-                "street": data_final['street'],
-                "city": 'Accra',
-                "state": 'Greater Accra',
-                "zipcode": '+233',
-                "country": "Ghana",
-            }
-            incident={
-                "latitude": data_final['lat'],
-                "longitude": data_final['lng'],
-                "incident_type": data_final['incident_type'],
-                "incident_description": data_final['incident_description'],
-            }
-            patient={
-                "relative_phone": data_final['relative_phone'],
-            }
-            all_data = {}
-            for i in [person, address, incident, patient]:
-                for k, v in i.items():
-                    all_data[k] = v
-
-            # create patient
-            user_creator = CreateExternalUser(all_data)
-            patient = user_creator.create_patient()
-            if patient == None:
-                return (render_template('home.html', error="Error creating patient"))
+            singUp_data = SignUp(data_final)
+            all_data = singUp_data.get_data()
+            # # create patient
+            # user_creator = CreateExternalUser()
+            # patient = user_creator.create_patient(all_data)
+            # if patient == None:
+            #     return (render_template('home.html', error="Error creating patient"))
             
-            print("========Patient created===========")
-            print("patient: ", patient)
+            # print("========Patient created===========")
+            # print("patient: ", patient)
+
+            # hospitals = nearby_hospitals(data_final['lat'],
+            #                              data_final['lng'],
+            #                              10000)
+            print("========Hospitals===========")
+            # print("hospitals: ", hospitals)
 
     return (redirect(url_for('home')))
 
@@ -280,8 +243,8 @@ def register():
             
             data[key] = request.form.get(key.strip())
         # create user
-        user_creator = CreateUser(data)
-        my_user = user_creator.create_user()
+        user_creator = CreateUser()
+        my_user = user_creator.create_user(data)
 
         if isinstance(my_user, str):
             registration['user_exits'] = "User Exits. <b> Login or use another email address</b>"

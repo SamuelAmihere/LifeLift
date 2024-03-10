@@ -56,4 +56,3 @@ def authenticate_inputs(*args):
     for i in args:
         if i == "" or i == None:
             return ("Missing input")
-        

@@ -3,7 +3,7 @@
 import os
 import hashlib
 from models.base_model import BaseModel, Base
-from sqlalchemy import Column, Enum, String
+from sqlalchemy import Column, Enum, ForeignKey, String
 from sqlalchemy import Column, String
 from models.base_model import BaseModel, Base
 from models import storage_type
@@ -12,11 +12,18 @@ from models import storage_type
 class User(BaseModel, Base):
     """This is the class for User
     """
+    fields_errMSG = {
+        'user_name': 'Missing user name',
+        'password': 'Missing password',
+        'user_type': 'Missing user type',
+    }
     if storage_type == "db":
         __tablename__ = "users"
         user_name = Column(String(128), nullable=False)
         hashed_password = Column(String(128), nullable=False)
-        user_type = Column(Enum('admin', 'company', 'nurse', 'driver'), nullable=False)
+        user_type = Column(Enum('admin', 'company', 'nurse', 'driver'),
+                           nullable=False)
+        staff_id = Column(String(60), ForeignKey('staff.id'), nullable=True)
         salt = Column(String(128), nullable=False)
     else:
         user_name = ""

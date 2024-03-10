@@ -7,21 +7,25 @@
 <div class="split right-admin">
   <h1>Requests</h1>
   {% if session['user_type'] == 'admin' %}
-      <table id="">
-    <th>
-      {% for key in requests_info[0] %}
-      {{ key }}
-      {% endfor %}
-    </th>
+  <table id="">
+    <div>
+      <th>Name</th>
+    
+      <th>Latitude</th>
+      
+      <th>Longitude</th>
+    </div>
+    
+    
+    
+    {% for request in hospitals %}
     <tr>
-      {% for request in requests_info %}
-      <td>{{ request['id'] }}</td>
-      <td>{{ request['user_id'] }}</td>
-      <td>{{ request['ambulance_id'] }}</td>
-      <td>{{ request['hospital_id'] }}</td>
-      <td>{{ request['status'] }}</td>
-      <td>{{ request['created_at'] }}</td>
-      <td>{{ request['updated_at'] }}</td>
+      <div>
+        <td>{{ request['company_id'] }}</td>
+        <td>{{ request['latitude'] }}</td>
+        <td>{{ request['longitude'] }}</td>
+      </div>
+
     </tr>
     {% endfor %}
   </table>

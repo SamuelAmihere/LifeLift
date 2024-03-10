@@ -23,7 +23,14 @@ if models.storage_type == "db":
 
 class Incident(BaseModel, Base):
     """This is the Incident class"""
-
+    # Fields to retrieve external data
+    fields_errMSG = {
+        'incident_type': 'Missing incident',
+        'incident_description': 'Missing description',
+        'lat': 'Missing latitude',
+        'lng': 'Missing longitude',
+        'status': 'Missing status'
+    }
     if models.storage_type == "db":
        __tablename__ = 'incidents'
        incident_type = Column(String(50), nullable=False)

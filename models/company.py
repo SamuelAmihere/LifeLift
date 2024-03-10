@@ -12,19 +12,28 @@ from sqlalchemy.orm import relationship
 class Company(BaseModel, Base):
     """This is the class for institution/company
     """
+    fields_errMSG = {
+        'name': 'Missing name',
+        # to create address
+        'email': 'Missing email',
+        'phone': 'Missing phone_number',
+        'street': 'Missing street',
+        'city': 'Missing city',
+        'state': 'Missing state',
+        'zipcode': 'Missing zipcode',
+        'country': 'Missing country',
+
+        'status': 'Missing status'
+    }
     if storage_type == "db":
         __tablename__ = "companies"
         name = Column(String(128), nullable=False)
-        email = Column(String(128), nullable=True)
-        phone_number = Column(String(128), nullable=True)
         address_id = Column(String(60), ForeignKey('addresses.id'), nullable=False)
         status = Column(Enum('active', 'inactive'), default='active')
         staff = relationship("Staff", back_populates="company", cascade="delete")
         ambulances = relationship("Ambulance", back_populates="company", cascade="delete")
     else:
-        email = ""
-        email = ""
-        phone_number = ""
+        name = ""
         address_id = ""
         status = ""
         available_staff = []

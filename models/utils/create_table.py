@@ -2,13 +2,14 @@
 """This is the module for support functions for interacting
 with the database
 """
-from datetime import datetime
 from models import storage
-from models import storage_type
 from models.alert import Alert
+from models.company import Company
+from models.contact import Contact
+from models.hosp_operator import Hospital
 from models.incident import Incident
 from models.location import Address
-from models.system_user import InternalUser, Patient, Person
+from models.system_user import InternalUser, Patient, Person, Staff
 from models.user import User
 
 
@@ -51,86 +52,334 @@ def check_address(data):
     return None
 
 
+class CreateCompany:
+    """This class creates companies
+    """
+    def __init__(self):
+        self.companies = []
+
+    def create(self,cls, category, data):
+        """
+        This function creates companies
+        cls: the class to create
+        category: the category of the company
+        data: a dictionary with the following keys
+        return: a dictionary with the company id
+        """
+        data = CreateUser.data_ok(cls, data)
+        if not data:
+            return None
+        co_data = {}
+        
+        for field in cls.fields_errMSG.keys():
+            if field in data:
+                co_data[field] = data[field]
+       
+        # create Contact
+        user = CreateUser()
+        contact = user.create_contact(co_data)
+
+        if not contact:
+            return None
+
+        address = storage.get_one_by(Address,
+                                    street=co_data['street'],
+                                    city=co_data['city'],
+                                    state=co_data['state'],
+                                    zipcode=co_data['zipcode'],
+                                    country=co_data['country'])
+        if not address:
+            return None
+
+        company = storage.get_one_by(Company,
+                                     address_id=address.id,
+                                     name=co_data['name'])
+        if not company:
+
+            company = Company(name=co_data['name'],
+                              address_id=address.id,
+                              status=co_data['status'])
+            if company:
+                company.save()
+
+        if category == "hospital":
+            hosp = storage.get_one_by(Hospital,
+                                      company_id=company.id)
+            if hosp:
+                return hosp.id
+            
+            hosp = cls(
+            company_id=company.id,
+            latitude=co_data['lat'],
+            longitude=co_data['lng'])
+            if hosp:
+                hosp.save()
+                return hosp.id
+            return None
+        elif category == "ambulance":
+            ambu = storage.get_one_by(cls,
+                                      company_id=company.id)
+            if ambu:
+                return ambu.id
+            
+            ambu = cls(company_id=company.id)
+            if ambu:
+                ambu.save()
+                return ambu.id
+            return None
+        return None
+
 class CreateUser:
     """
     This class creates users
     1. create Person: first_name,last_name,gender,phone_number,email
     2. create User: user_name, password
     """
-    required_fields = {'Person': ['fname', 'lname', 'gender', 'phone',
-                                  'email'],
-                       'User': ['user_name', 'password', 'userType']
-                       }
     
-    def __init__(self, data):
-        self.data = data if self.data_ok(data) else None
-        self.user = None
-        self.person = None
-        self.internal_user = None
+    def __init__(self):
+        pass
 
-    def data_ok(self, data):
+    @classmethod
+    def data_ok(cls, actual_cls, data):
         """
         This method checks the data type and returns a dictionary
+        data: dictionary of the data
         """
-        if not isinstance(data, dict) or not data or data is None or len(data) == 0:
+        if not isinstance(data, dict) or not data or len(data) == 0:
+            print(f"Data is not a dictionary {data}")
             return None
         # check if the data is complete
-        for key, val  in CreateUser.required_fields.items():
-            for field in val:
-                if field in data.keys() == False:
-                    return None
+        fields_flag = True
+        # for field in data.keys():
+        for field in actual_cls.fields_errMSG.keys():
+            if field not in data.keys():
+                print(f"Field [[{field}]] is not in {data.keys()}")
+                fields_flag = False
+        if not fields_flag:
+            print(actual_cls.fields_errMSG.keys(), "====>")
+            print(f"Field(s) for {actual_cls.__name__} not in {data.keys()}")
+            return None
         return data
 
-    def create_person(self):
+    def create_address(self, data, data_flag=False):
+        """
+        This method creates an address
+        data: dictionary of the address
+        data_flag: boolean to check if the data is ok
+
+        returns: address id
+        """
+        if data_flag:
+            data = CreateUser.data_ok(Address, data)
+        if not data:
+           return None
+        # create address
+        address_data = {}
+        for field in Address.fields_errMSG.keys():
+            if field in data:
+                address_data[field] = data[field]
+
+        if len(data) <= 0:
+            return None
+
+        address = storage.get_one_by(Address,
+                                     street=address_data['street'],
+                                     city=address_data['city'],
+                                     state=address_data['state'],
+                                     zipcode=address_data['zipcode'],
+                                     country=address_data['country'])
+        
+        
+        if address:
+            return address.id                
+        address = Address(street=address_data['street'],
+                          city=address_data['city'],
+                          state=address_data['state'],
+                          zipcode=address_data['zipcode'],
+                          country=address_data['country'])
+        if address:
+            address.save()
+            return address.id
+        return None
+
+    def create_contact(self, data, data_flag=False):
+        """
+        This method creates a contact
+        data: dictionary of the contact
+        """
+        if data_flag:
+            data = CreateUser.data_ok(Contact, data)
+        if not data:
+            return None
+        
+        contact_data = {}
+        for field in Contact.fields_errMSG.keys():
+            if field in data:
+                contact_data[field] = data[field]
+
+        if len(contact_data) <= 0:
+            return None
+        contact = storage.get_one_by(Contact,
+                                    email=contact_data['email'],
+                                    phone_number=contact_data['phone'])
+        if contact:
+            return contact.id
+ 
+        address = self.create_address(contact_data)
+
+        if not address:
+            return None
+        contact = Contact(email=contact_data['email'],
+                          phone_number=contact_data['phone'],
+                          address_id=address)
+        if contact:
+            contact.save()
+            return contact.id
+        return None
+
+    def create_person(self, data, data_flag=False):
         """
         This method creates a person before a user is created
+        data: dictionary of the person
+        data_flag: boolean to check if the data is ok
         """
-        if self.data is None:
+        if data_flag:
+            data = data if CreateUser.data_ok(Person, data) else None
+        if not data:
             return None
+        person_data = {}
+        for field in Person.fields_errMSG.keys():
+            if field in data:
+                person_data[field] = data[field]
 
-        first_name = self.data.get(CreateUser.required_fields['Person'][0])
-        last_name = self.data.get(CreateUser.required_fields['Person'][1])
-        gender = self.data.get(CreateUser.required_fields['Person'][2])
-        phone_number = self.data.get(CreateUser.required_fields['Person'][3])
-        email = self.data.get(CreateUser.required_fields['Person'][4])
-
-        person_id = check_by_email(email)
-
-        if person_id == 0:
-            # invalid data type
+        person = storage.get_one_by(Person,
+                                    first_name=person_data['fname'],
+                                    last_name=person_data['lname'],
+                                    gender=person_data['gender'])
+        if person:
+            Contact_id = storage.get_one_by(Contact, id=person.contact_id)
+            if Contact_id:
+                return person.id
+        contact = self.create_contact(person_data)
+        if not contact:
             return None
-        elif  person_id:
-            # Exists
-            return person_id
-        else:
-            # create person
-            self.person = Person(first_name=first_name, last_name=last_name,
-                                gender=gender, phone_number=phone_number,
-                                    email=email)
-            self.person.save()
-            return self.person.to_dict()
-            
+        person = Person(first_name=person_data['fname'],
+                        last_name=person_data['lname'],
+                        gender=person_data['gender'],
+                        contact_id=contact)
+        if person:
+            person.save()
+            return person.id
+        return None
     
-    def create_user(self):
+    def create_internal_user(self, data):
+        """
+        This method creates an internal user
+        data: dictionary of the internal user
+        """
+        data = data if CreateUser.data_ok(InternalUser, data) else None
+        if data == None:
+            return None
+        
+        user_data = {}
+        for field in InternalUser.fields_errMSG.keys():
+            if field in data:
+                user_data[field] = data[field]
+        
+        # person
+        person = self.create_person(user_data)
+        if person == None:
+            return None
+        
+        # check if user exists
+        int_user = storage.get_one_by(InternalUser, person_id=person.id)
+        if int_user:
+            return int_user.id
+        # create internal user
+        int_user = InternalUser(person_id=person.id)
+        if int_user:
+            int_user.save()
+            return (int_user.to_dict())
+        return None
+    
+    def creat_staff(self,cls_comp, category, data):
+        """
+        This method creates a staff
+        cls_comp: the class to create
+        category: the category of the company
+        data: dictionary of the staff
+        """
+
+        data = data if CreateUser.data_ok(Staff, data) else None
+        if data == None:
+            return None
+        staff_data = {}
+        
+        for field in Staff.fields_errMSG.keys():
+            if field in data:
+                staff_data[field] = data[field]
+        
+        staff = storage.get_one_by(Staff,
+                                   staff_number=staff_data['staff_number'])
+        if staff:
+            return staff.id
+        
+        comp = CreateCompany().create(cls_comp, category, staff_data)
+        # create company
+        comp = CreateCompany().create(cls_comp, category, staff_data)
+        if not comp:
+            return None
+        company_id = comp
+
+        # create internal user
+        int_user = self.create_internal_user(staff_data)
+        if not int_user:
+            return None
+        staff = Staff(staff_number=staff_data['staff_number'],
+                      internal_user_id=int_user,
+                      status=staff_data['status'],
+                      company_id=company_id)
+        if staff:
+            staff.save()
+            return staff.id
+        return None
+
+    def create_user(self, cls_comp, category, data):
         """
         This method creates a user
+        cls_comp: the class to create
+        category: the category of the company
+        data: dictionary of the user
         """
         # create person
-        person = self.create_person()
+        data = data if CreateUser.data_ok(User, data) else None
+        if data == None:
+            return None
+        user_data = {}
+        userFields = User.fields_errMSG
+        userFields.update(**Staff.fields_errMSG)
+        for field in userFields.keys():
+            if field in data:
+                user_data[field] = data[field]
 
-        if isinstance(person, str):
-            return person
+        # check if user exists
+        user = storage.get_one_by(User, user_name=user_data['user_name'])
+        if user:
+            return user.id
+        
+        # create staff
+        staff = self.creat_staff(cls_comp, category, user_data)
+        if not staff:
+            return None
         # create user
-        user_name = self.data[CreateUser.required_fields['Person'][4]]
-        user_type = self.data[CreateUser.required_fields['User'][-1]]
-        pwd = self.data[CreateUser.required_fields['User'][1]]
-
-        user = User(user_name=user_name, user_type=user_type)
+        user = User(user_name=user_data['email'],
+                    user_type=user_data['user_type'],
+                    staff_id=staff)
         if user:
             user.generate_salt()
-            user.set_password(pwd)
+            user.set_password(user_data['password'])
             user.save()
-            return (user.to_dict())
+            return user.id
         return None
     
 
@@ -139,71 +388,72 @@ class CreateExternalUser(CreateUser):
     This class creates external users
     1. create Person: first_name,last
     """
-    required_fields_pat = {'Person': CreateUser.required_fields['Person'],
-                        'Address': ['street', 'city', 'state', 'zipcode',
-                                    'country'],
-                        'Patient': ['relative_phone']
-                        }
+    def __init__(self):
+        pass
 
-    def __init__(self, data):
-        super().__init__(data)
-        self.user = None
-        self.person = None
-        self.address = None
-
-    
-    def create_address(self):
-        """
-        This method creates an address
-        """
-
-        add = check_address(self.data)
-        if isinstance(add, str):
-            return add
-    
-        # create address
-        self.address = Address(street=self.data['street'],
-                          city=self.data['city'],
-                          state=self.data['state'],
-                          zipcode=self.data['zipcode'],
-                          country=self.data['country'])
-        if self.address:
-            self.address.save()
-            return self.address.id
-        return None
-    
-    def create_patient(self):
+    def create_patient(self, data):
         """
         This method creates a patient
+        data: dictionary of the patient
         """
-        address = self.create_address()
-        if isinstance(address, str) == False:
-            return None
-         # create person
-        person = self.create_person()
-        if isinstance(person, str) == False:
+        data = CreateUser.data_ok(Patient, data)
+        if data == None:
             return None
         
+        pat_data = {}
+        for field in Patient.fields_errMSG.keys():
+            if field in data:
+                pat_data[field] = data[field]
+        # create person
+        person = self.create_person(pat_data)
+        if person == None:
+            return None
+        # create incident
+        incident = storage.get_one_by(Incident,
+                                      incident_type=pat_data['incident_type'],
+                                      latitude=pat_data['lat'],
+                                      longitude=pat_data['lng'])
+        if incident:
+            return None
+        # create Incident
+        incident = Incident(incident_type=pat_data['incident_type'],
+                            latitude=pat_data['lat'],
+                            longitude=pat_data['lng'],
+                            incident_description=pat_data['incident_description'],
+                            incident_status=pat_data['status'])
+        if not incident:
+            return None
+        incident.save()
+        alert = self.create_alert(incident.id, pat_data)
+        if alert:
+            alert.save()
         # create patient
-        self.user = Patient(person_id=self.person.id,
-                          address_id=self.address.id,
-                          relative_phone=self.data['relative_phone'])
-        if self.user:
-            self.user.save()
-            return self.user.id
+        patient = Patient(person_id=person.id,
+                          incident_id=incident.id,
+                          relative_phone=pat_data['relative_phone'])
+        if patient:
+            patient.save()
+            return patient.id
         return None
 
-    def create_alert(self):
+    def create_alert(self, incident_id, data):
         """
         This method creates an alert
         """
-        # create patient
-        patient = self.create_patient()
-        if isinstance(patient, str) == False:
+        alert_data = CreateUser.data_ok(Alert, data)
+        if data == None:
             return None
+        data = {}
+        for field in Alert.fields_errMSG.keys():
+            if field in data:
+                alert_data[field] = data[field]
+        alert = storage.get_one_by(Alert, incident_id=incident_id)
+        if alert:
+            return alert.id
         # create alert
-        alert = Alert(patient_id=patient, alert_type="Emergency",
-                      alert_status="Pending")
+        alert = Alert(alert_type=alert_data['alert_type'],
+                      alert_status=alert_data['alert_status'],
+                      incident_id=incident_id)
         if alert:
             alert.save()
             return alert.id

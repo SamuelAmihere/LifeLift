@@ -5,13 +5,16 @@ from models.base_model import Base, BaseModel
 from sqlalchemy import Column, ForeignKey, String, Float
 from sqlalchemy.orm import relationship
 from models.company import Company
-from models.system_user import Staff
+from models.alert import alert_hospital
 
 if models.storage_type == "db":
     from models.location import location_hospitals
 
 class HealthTopic(BaseModel, Base):
     """This is the Health Topic class"""
+    fields_errMSG = {
+        'topic': 'Missing health topic',
+    }
     if models.storage_type == "db":
         __tablename__ = 'health_topics'
         topic = Column(String(100), nullable=False)
@@ -21,6 +24,9 @@ class HealthTopic(BaseModel, Base):
 
 class HealthMessage(BaseModel, Base):
     """This is the Health Topic message class"""
+    fields_errMSG = {
+        'message': 'Missing health message',
+    }
     if models.storage_type == "db":
         __tablename__ = 'health_messages'
         health_topic_id = Column(String(60), ForeignKey('health_topics.id'),
@@ -33,6 +39,8 @@ class HealthMessage(BaseModel, Base):
 
 class HospitalStaff(BaseModel, Base):
     """This is the Hospital Staff class"""
+    fields_errMSG = {
+    }
     if models.storage_type == "db":
         __tablename__ = 'hospital_staff'
         staff_id = Column(String(60), ForeignKey('staff.id'), nullable=False)
@@ -62,14 +70,28 @@ class HospitalStaff(BaseModel, Base):
 
 class Hospital(BaseModel, Base):
     """This is the Hospital Operator class"""
+    fields_errMSG = {
+        'lat': 'Missing latitude',
+        'lng': 'Missing longitude',
+        # to create company
+        'name': 'Missing name',
+        'email': 'Missing email',
+        'phone': 'Missing phone_number',
+        'street': 'Missing street',
+        'city': 'Missing city',
+        'state': 'Missing state',
+        'zipcode': 'Missing zipcode',
+        'country': 'Missing country',
+        'status': 'Missing status'
+    }
     if models.storage_type == "db":
         __tablename__ = 'hospitals'
         company_id = Column(String(60), ForeignKey('companies.id'),
                             nullable=False)
         latitude = Column(Float, nullable=False)
         longitude = Column(Float, nullable=False)
-        alerts = relationship("Alert", back_populates="hospital",
-                              cascade="delete")
+        alerts = relationship("Alert", secondary=alert_hospital,
+                             back_populates="hospitals")
         locations = relationship("Location", secondary=location_hospitals, back_populates="hospitals")
     else:
         company_id = ""
