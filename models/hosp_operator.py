@@ -6,6 +6,7 @@ from sqlalchemy import Column, ForeignKey, String, Float
 from sqlalchemy.orm import relationship
 from models.company import Company
 from models.alert import alert_hospital
+from models.system_user import Staff
 
 if models.storage_type == "db":
     from models.location import location_hospitals
@@ -40,10 +41,13 @@ class HealthMessage(BaseModel, Base):
 class HospitalStaff(BaseModel, Base):
     """This is the Hospital Staff class"""
     fields_errMSG = {
+        **Staff.fields_errMSG,
+        **HealthMessage.fields_errMSG
     }
     if models.storage_type == "db":
         __tablename__ = 'hospital_staff'
         staff_id = Column(String(60), ForeignKey('staff.id'), nullable=False)
+        hospital_id = Column(String(60), ForeignKey('hospitals.id'), nullable=False)
         health_messages = relationship("HealthMessage", back_populates="hospital_staff",
                                        cascade="delete")
     else:
@@ -93,6 +97,8 @@ class Hospital(BaseModel, Base):
         alerts = relationship("Alert", secondary=alert_hospital,
                              back_populates="hospitals")
         locations = relationship("Location", secondary=location_hospitals, back_populates="hospitals")
+        staff = relationship("HospitalStaff", back_populates="hospitals",
+                             cascade="delete")
     else:
         company_id = ""
         latitude = ""

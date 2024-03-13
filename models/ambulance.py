@@ -23,10 +23,10 @@ class Ambulance(BaseModel, Base):
         'model': 'Missing model',
         'capacity': 'Missing capacity',
         'status': 'Missing status',
-        # to create site
-        **Site.fields_errMSG,
-        # to create company
-        **Company.fields_errMSG,
+        # # to create site
+        # **Site.fields_errMSG,
+        # # to create company
+        # **Company.fields_errMSG,
     }
     if models.storage_type == "db":
         __tablename__ = 'ambulances'
@@ -79,9 +79,9 @@ class ActiveAmbulance(BaseModel, Base):
     fields_errMSG = {
         'lat': 'Missing latitude',
         'lng': 'Missing longitude',
-        **Ambulance.fields_errMSG,
-        **Alert.fields_errMSG,
-        **Hospital.fields_errMSG,
+        # **Ambulance.fields_errMSG,
+        # **Alert.fields_errMSG,
+        # **Hospital.fields_errMSG,
     }
     if models.storage_type == "db":
         __tablename__ = 'active_ambulances'

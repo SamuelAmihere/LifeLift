@@ -80,10 +80,10 @@ def create_hospitals(data_src):
 
             if temp:
                 
-                hos_id = CreateCompany().create(Hospital, 'hospital', temp)
-                if hos_id:
+                hos = CreateCompany().create(Hospital, 'hospital', temp)
+                if hos:
                     i += 1
-                    print(f"[{i}] Hospital created: {hos_id}")
+                    print(f"[{i}] Hospital created: {hos.id}")
                     print("******************************************")
                 else:
                     j += 1

@@ -32,7 +32,7 @@ def check_by_email(email):
         return 0
     user = storage.get_one_by(User, user_name=email)
     if user:
-        return user.id
+        return user.to_dict()
     return None
 
 def check_address(data):
@@ -48,7 +48,7 @@ def check_address(data):
     address = storage.get_one_by(Address, street=street, city=city,
                                  state=state, zipcode=zipcode, country=country)
     if address:
-        return address.id
+        return address.to_dict()
     return None
 
 
@@ -106,7 +106,7 @@ class CreateCompany:
             hosp = storage.get_one_by(Hospital,
                                       company_id=company.id)
             if hosp:
-                return hosp.id
+                return hosp.to_dict()
             
             hosp = cls(
             company_id=company.id,
@@ -114,18 +114,18 @@ class CreateCompany:
             longitude=co_data['lng'])
             if hosp:
                 hosp.save()
-                return hosp.id
+                return hosp.to_dict()
             return None
         elif category == "ambulance":
             ambu = storage.get_one_by(cls,
                                       company_id=company.id)
             if ambu:
-                return ambu.id
+                return ambu.to_dict()
             
             ambu = cls(company_id=company.id)
             if ambu:
                 ambu.save()
-                return ambu.id
+                return ambu.to_dict()
             return None
         return None
 
@@ -192,7 +192,7 @@ class CreateUser:
         
         
         if address:
-            return address.id                
+            return address.to_dict()               
         address = Address(street=address_data['street'],
                           city=address_data['city'],
                           state=address_data['state'],
@@ -200,7 +200,7 @@ class CreateUser:
                           country=address_data['country'])
         if address:
             address.save()
-            return address.id
+            return address.to_dict()
         return None
 
     def create_contact(self, data, data_flag=False):
@@ -224,7 +224,7 @@ class CreateUser:
                                     email=contact_data['email'],
                                     phone_number=contact_data['phone'])
         if contact:
-            return contact.id
+            return contact.to_dict()
  
         address = self.create_address(contact_data)
 
@@ -232,10 +232,10 @@ class CreateUser:
             return None
         contact = Contact(email=contact_data['email'],
                           phone_number=contact_data['phone'],
-                          address_id=address)
+                          address_id=address.id)
         if contact:
             contact.save()
-            return contact.id
+            return contact.to_dict()
         return None
 
     def create_person(self, data, data_flag=False):
@@ -258,19 +258,19 @@ class CreateUser:
                                     last_name=person_data['lname'],
                                     gender=person_data['gender'])
         if person:
-            Contact_id = storage.get_one_by(Contact, id=person.contact_id)
-            if Contact_id:
-                return person.id
+            Contact = storage.get_one_by(Contact, id=person.contact_id)
+            if Contact:
+                return person.to_dict()
         contact = self.create_contact(person_data)
         if not contact:
             return None
         person = Person(first_name=person_data['fname'],
                         last_name=person_data['lname'],
                         gender=person_data['gender'],
-                        contact_id=contact)
+                        contact_id=contact.id)
         if person:
             person.save()
-            return person.id
+            return person.to_dict()
         return None
     
     def create_internal_user(self, data):
@@ -295,7 +295,7 @@ class CreateUser:
         # check if user exists
         int_user = storage.get_one_by(InternalUser, person_id=person.id)
         if int_user:
-            return int_user.id
+            return int_user.to_dict()
         # create internal user
         int_user = InternalUser(person_id=person.id)
         if int_user:
@@ -303,7 +303,7 @@ class CreateUser:
             return (int_user.to_dict())
         return None
     
-    def creat_staff(self,cls_comp, category, data):
+    def creat_staff(self, cls_comp, category, data):
         """
         This method creates a staff
         cls_comp: the class to create
@@ -323,26 +323,25 @@ class CreateUser:
         staff = storage.get_one_by(Staff,
                                    staff_number=staff_data['staff_number'])
         if staff:
-            return staff.id
+            return staff.to_dict()
         
         comp = CreateCompany().create(cls_comp, category, staff_data)
         # create company
         comp = CreateCompany().create(cls_comp, category, staff_data)
         if not comp:
             return None
-        company_id = comp
 
         # create internal user
         int_user = self.create_internal_user(staff_data)
         if not int_user:
             return None
         staff = Staff(staff_number=staff_data['staff_number'],
-                      internal_user_id=int_user,
+                      internal_user_id=int_user.id,
                       status=staff_data['status'],
-                      company_id=company_id)
+                      company_id=comp.id)
         if staff:
             staff.save()
-            return staff.id
+            return staff.to_dict()
         return None
 
     def create_user(self, cls_comp, category, data):
@@ -366,7 +365,7 @@ class CreateUser:
         # check if user exists
         user = storage.get_one_by(User, user_name=user_data['user_name'])
         if user:
-            return user.id
+            return user.to_dict()
         
         # create staff
         staff = self.creat_staff(cls_comp, category, user_data)
@@ -375,12 +374,12 @@ class CreateUser:
         # create user
         user = User(user_name=user_data['email'],
                     user_type=user_data['user_type'],
-                    staff_id=staff)
+                    staff_id=staff.id)
         if user:
             user.generate_salt()
             user.set_password(user_data['password'])
             user.save()
-            return user.id
+            return user.to_dict()
         return None
     
 
@@ -432,13 +431,13 @@ class CreateExternalUser(CreateUser):
         if alert:
             alert.save()
         # create patient
-        patient = Patient(person_id=person,
+        patient = Patient(person_id=person.id,
                           incident_id=incident.id,
                           relative_phone=pat_data['relative_phone'])
         if patient:
             patient.save()
             # Add patient to incidents
-            return patient.id
+            return patient.to_dict()
         return None
 
     def create_alert(self, incident_id, data):
@@ -454,12 +453,12 @@ class CreateExternalUser(CreateUser):
                 alert_data[field] = data[field]
         alert = storage.get_one_by(Alert, incident_id=incident_id)
         if alert:
-            return alert.id
+            return alert.to_dict()
         # create alert
         alert = Alert(alert_type=alert_data['alert_type'],
                       alert_status=alert_data['alert_status'],
                       incident_id=incident_id)
         if alert:
             alert.save()
-            return alert.id
+            return alert.to_dict()
         return None

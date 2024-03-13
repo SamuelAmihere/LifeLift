@@ -68,5 +68,5 @@ def get_hospitals_db():
         name = storage.get_one_by(Company, id=obj.company_id).name
         obj.name = name
         results.append(obj.to_dict())
-    hospitals = list(obj.to_dict() for obj in data_hospitals.values())
-    return hospitals
+    # hospitals = list(obj.to_dict() for obj in data_hospitals.values())
+    return results

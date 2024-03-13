@@ -31,7 +31,7 @@ def check_by_email(email):
         return 0
     user = storage.get_one_by(User, user_name=email)
     if user:
-        return user.id
+        return user.to_dict()
     return None
 
 def check_address(data):
@@ -47,7 +47,7 @@ def check_address(data):
     address = storage.get_one_by(Address, street=street, city=city,
                                  state=state, zipcode=zipcode, country=country)
     if address:
-        return address.id
+        return address.to_dict()
     return None
 
 
@@ -94,14 +94,14 @@ class CreateUser:
         phone_number = self.data.get(CreateUser.required_fields['Person'][3])
         email = self.data.get(CreateUser.required_fields['Person'][4])
 
-        person_id = check_by_email(email)
+        person = check_by_email(email)
 
-        if person_id == 0:
+        if person == 0:
             # invalid data type
             return None
-        elif  person_id:
+        elif  person:
             # Exists
-            return person_id
+            return person
         else:
             # create person
             self.person = Person(first_name=first_name, last_name=last_name,
@@ -116,7 +116,7 @@ class CreateUser:
         This method creates a user
         """
         # create person
-        person = self.create_person()
+        person = self.create_person().id
 
         if isinstance(person, str):
             return person
@@ -169,7 +169,7 @@ class CreateExternalUser(CreateUser):
                           country=self.data['country'])
         if self.address:
             self.address.save()
-            return self.address.id
+            return self.address.to_dict()
         return None
     
     def create_patient(self):
@@ -190,7 +190,7 @@ class CreateExternalUser(CreateUser):
                           relative_phone=self.data['relative_phone'])
         if self.user:
             self.user.save()
-            return self.user.id
+            return self.user.to_dict()
         return None
 
     def create_alert(self):
@@ -202,9 +202,9 @@ class CreateExternalUser(CreateUser):
         if isinstance(patient, str) == False:
             return None
         # create alert
-        alert = Alert(patient_id=patient, alert_type="Emergency",
+        alert = Alert(patient_id=patient.id, alert_type="Emergency",
                       alert_status="Pending")
         if alert:
             alert.save()
-            return alert.id
+            return alert.to_dict()
         return None
