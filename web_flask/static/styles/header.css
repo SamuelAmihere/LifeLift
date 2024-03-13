@@ -2,16 +2,14 @@
 /* CSS Document */
 
 .header-local {
-    background-color: #121212; /* #810a0a;*/
+    background-color: #121212;
     color: #fff;
-    padding: 10px 0;
     display: flex;
-    align-items: center;
     justify-content: space-between;
-    position: fixed;
     top: 0;
     width: 100%;
     z-index: 1000;
+    height: 80%;
 }
 
 .nav-btn-loc {
@@ -19,25 +17,23 @@
     margin-left: 3px;
 
 }
-.call-199 {
-    color: #000;
-    font-size: 14px;
-    font-weight: 700;
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0 10px;
-    border: 1px solid #000;
-    border-radius: 3px;
-    margin: 0 10px;
-}
-.call-199 a {
-    color: #ca0909;
-    text-decoration: none;
-}
+
 
 a:active {
     color: #ca0909;
     text-decoration: none;
+}
+
+.sub-menu {
+    border-color: #240404;
+    height: 35px;
+    align-items: center;
+    align-content: center;
+    /* margin-bottom: 1 solid #3a3737; */
+    border-bottom: 1px solid #ee9a9a;
+    transition: height 0.66s ease-out;
+    background: #d61212;
+    padding-bottom: 0;
+    padding-top: 3px;
+    position: flex;    
 }

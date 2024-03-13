@@ -37,9 +37,6 @@
  }
 
   .right-admin .form-control {
-    /* margin: 0; */
-    /* padding: 0; */
-    /* border: 0; */
     border-bottom: 1px solid #000;
     background: transparent;
     font-size: 12px;
@@ -53,6 +50,23 @@
     size: 15px;
     /* font-size: 5px; */
   }
+
+  .emergency-form-container{
+    width: 30%; 
+    float: right;
+    direction: flex;
+    
+    /* right: 3%;  */
+    right: 5%;
+    /* background-color: rgba(15, 15, 14, 0.6);  */
+    z-index: 1;
+    border-radius: 10px; 
+    padding-bottom: 10px;
+    padding-left: 15px;
+    padding-top: 10px;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-weight: 100;
+  }
   
   .register {
     /* left: 50%; */
@@ -63,37 +77,27 @@
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   }
 
-  .request_container
+  /* .request_container
   {
-    width: 30%; 
-    position: absolute;
-    /* height: 30%; */
-    top: 20%;
-    
-    /* right: 3%;  */
+
     right: 5%;
     background-color: rgba(10, 11, 6, 0.6); 
     z-index: 1;
-    border-radius: 10px; 
     padding-bottom: 10px;
     padding-left: 15px;
     padding-top: 10px;
     font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
     font-weight: 100;
-  }
+  } */
+
 
   #emergency-form {
-    /* position: fixed; */
-    max-height: 70%;
-    bottom: 5%;
-    height: inherit;
-    /* background-color: rgba(10, 11, 6, 0.6);  */
+    height: 600px;
     z-index: 1;
-    border-radius: 10px; 
-    /* padding: 20px; */
     color: #810A0A;
     font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
     font-weight: 100;
+    padding: 0 5px;
   }
 
   #emergency-form .inp input {
@@ -110,7 +114,7 @@
 
   #emergency-form .default-inp input {
 
-    display: inline-block;
+    /* display: inline-block; */
     border: 1px solid #ccc;
     background: #a5f386;
     border-radius: 4px;

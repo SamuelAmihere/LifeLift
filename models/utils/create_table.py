@@ -151,6 +151,7 @@ class CreateUser:
         # check if the data is complete
         fields_flag = True
         # for field in data.keys():
+        print(actual_cls.fields_errMSG.keys(), "====>")
         for field in actual_cls.fields_errMSG.keys():
             if field not in data.keys():
                 print(f"Field [[{field}]] is not in {data.keys()}")
@@ -389,6 +390,7 @@ class CreateExternalUser(CreateUser):
     1. create Person: first_name,last
     """
     def __init__(self):
+        super().__init__()
         pass
 
     def create_patient(self, data):
@@ -397,6 +399,8 @@ class CreateExternalUser(CreateUser):
         data: dictionary of the patient
         """
         data = CreateUser.data_ok(Patient, data)
+        
+        
         if data == None:
             return None
         
@@ -428,11 +432,12 @@ class CreateExternalUser(CreateUser):
         if alert:
             alert.save()
         # create patient
-        patient = Patient(person_id=person.id,
+        patient = Patient(person_id=person,
                           incident_id=incident.id,
                           relative_phone=pat_data['relative_phone'])
         if patient:
             patient.save()
+            # Add patient to incidents
             return patient.id
         return None
 
@@ -440,10 +445,10 @@ class CreateExternalUser(CreateUser):
         """
         This method creates an alert
         """
-        alert_data = CreateUser.data_ok(Alert, data)
+        data = CreateUser.data_ok(Alert, data)
         if data == None:
             return None
-        data = {}
+        alert_data = {}
         for field in Alert.fields_errMSG.keys():
             if field in data:
                 alert_data[field] = data[field]

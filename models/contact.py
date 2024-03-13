@@ -5,18 +5,15 @@ from models.base_model import Base, BaseModel
 from sqlalchemy import Column, ForeignKey, String
 from sqlalchemy.orm import relationship
 
+from models.location import Address
+
 
 class Contact(BaseModel, Base):
     """This is the Contact class"""
     fields_errMSG = {
         'email': 'Missing email',
         'phone': 'Missing phone_number',
-        # to create address
-        'street': 'Missing street',
-        'city': 'Missing city',
-        'state': 'Missing state',
-        'zipcode': 'Missing zipcode',
-        'country': 'Missing country',
+        **Address.fields_errMSG
     }
     if models.storage_type == "db":
         __tablename__ = 'contacts'

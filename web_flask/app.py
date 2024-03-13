@@ -11,7 +11,7 @@ from flask import render_template, redirect, request, url_for, session
 from flask_cors import CORS, cross_origin
 from flasgger import Swagger
 from flask_session import Session
-from models import storage
+from models import company, storage
 from models import storage_type
 from models.hosp_operator import Hospital
 from models.incident import Incident
@@ -22,6 +22,8 @@ from models.utils.create_companies import create_hospitals
 from models.utils.google import nearby_hospitals, read_hospital_data_json
 from models.utils.sign_up import SignUp
 from models.utils.create_table import CreateExternalUser, CreateUser, login_user
+from models.company import Company
+from util.support import get_hospitals_db
 
 app = Flask(__name__)
 app.secret_key = 'super secret key'
@@ -76,12 +78,9 @@ def admin():
     session["user_type"]='admin'
         # if not there in the session then redirect to the login page
         # return redirect("/login")
-    data_hospitals = storage.all(Hospital)
-    hospitals = list(obj.to_dict() for obj in data_hospitals.values())
-    # print("data_hospitals: ", hospitals)
-
+    results = get_hospitals_db()
     return (render_template('admin.html',
-                            hospitals=hospitals,
+                            hospitals=results,
                             GOOGLEMAP_API_KEY=GOOGLEMAP_API_KEY))
 
 # Home page
@@ -90,9 +89,11 @@ def admin():
 def home():
     """Home page"""
 
-    # create_hospitals('data/hospitals_data.json')
+    results = get_hospitals_db()
 
-    return (render_template('home.html',incident_type=['Health', 'Accident', 'Fire', 'Robbery', 'Others'],
+    return (render_template('home.html',
+                            hospitals=results,
+                            incident_type=['Health', 'Accident', 'Fire', 'Robbery', 'Others'],
                             GOOGLEMAP_API_KEY=GOOGLEMAP_API_KEY))
 
 # Google map page
@@ -137,23 +138,30 @@ def emergency_request():
                 except ValueError:
                     data_final[k] = v
       
+            # update the data
+            data_final['status'] = 'pending'
+            data_final['city'] = 'Accra'
+            data_final['state'] = 'Greater Accra'
+            data_final['country'] = 'Ghana'
+            data_final['zipcode'] = '00233'
+
             print("data: ",data_final)
 
-            singUp_data = SignUp(data_final)
-            all_data = singUp_data.get_data()
+            # singUp_data = SignUp(data_final)
+            # all_data = singUp_data.get_data()
             # # create patient
-            # user_creator = CreateExternalUser()
-            # patient = user_creator.create_patient(all_data)
-            # if patient == None:
-            #     return (render_template('home.html', error="Error creating patient"))
+            user_creator = CreateExternalUser()
+            patient = user_creator.create_patient(data_final)
+            if patient == None:
+                return (render_template('home.html', error="Error creating patient"))
             
-            # print("========Patient created===========")
-            # print("patient: ", patient)
+            print("========Patient created===========")
+            print("patient: ", patient)
 
             # hospitals = nearby_hospitals(data_final['lat'],
             #                              data_final['lng'],
             #                              10000)
-            print("========Hospitals===========")
+            # print("========Hospitals===========")
             # print("hospitals: ", hospitals)
 
     return (redirect(url_for('home')))
@@ -341,6 +349,27 @@ def get_users():
              for user in users.values()]
     return jsonify(users)
 
+
+
+
+# get all companies: Hospitals, AmbulanceOperators
+# get Hospitals
+@app.route('/hospitals', methods=['GET'])
+def get_hospitals():
+    """Get all hospitals"""
+    data_hospitals = storage.all(Hospital)
+    if data_hospitals is None:
+        abort(404, description="No hospitals found")
+    hospitals = []
+    for obj in data_hospitals.values():
+        name = storage.get_one_by(Company, id=obj.company_id).name
+        obj.name = name
+        hospitals.append(obj.to_dict())
+        print("name: ", obj.name)
+    return (render_template('admin.html',
+                            hospitals=hospitals,
+                            
+                            GOOGLEMAP_API_KEY=GOOGLEMAP_API_KEY))
 
 @app.errorhandler(404)
 def not_found(error):

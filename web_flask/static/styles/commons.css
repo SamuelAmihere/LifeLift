@@ -11,51 +11,17 @@ body {
     font-size: 14px;
     font-family: Circular,"Helvetica Neue",Helvetica,Arial,sans-serif;
 }
-/* div.container {
-    max-width: 1000px;
-    margin: 30px auto;
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-} */
 
 
+.headerMenu {
+    height: 20%;
+    /* position: fixed; */
+    /* padding-bottom: 10px; */
 
-
-.sub-menu {
-    margin-top: 105px;
-    height: 35px;
-    /* margin-bottom: 1 solid #3a3737; */
-    border-bottom: 1px solid #ee9a9a;
-    transition: height 0.66s ease-out;
-    background: #230000;
-    padding-bottom: 0;
 }
 
-#call-199 a {
-    color: #ca0909;
-    text-decoration: none;
-    margin-left: 10px;
-    margin-top: 4px;
-    font: 1em sans-serif;
-    font-weight: 800;
-}
-
-#call-199{
-    color: #000;
-    font-size: 14px;
-    font-weight: 700;
-    text-decoration: none;
-    display: flex;
-    /* align-items: center; */
-    /* justify-content: center; */
-    padding: 0 10px;
-    padding-top: 4px;
-    padding-left: 30%;
-    /* border: 1px solid #000; */
-    border-radius: 3px;
-    margin: 0 10px;
-    position: fixed;
+.sub-menu{
+    height: 20%;
 }
 
 #req:hover {
@@ -66,9 +32,15 @@ body {
 
 }
 
+.contentContainer{
+    height: 80%;
+    /* position: fixed; */
+    /* background: yellow; */
+}
+
 .split {
-    height: 71%;
-    width: 50%;
+    /* position: relative; */
+    height: 600px;
     border-width: 1px;
     z-index: 1;
     overflow-x: hidden;
@@ -82,16 +54,11 @@ body {
     border-style: solid;
     float: left;
     left: 0;
-    position: fixed;
+    /* position: fixed; */
     width: 60%;
-    /* border-top-right-radius: 1rem;
-    border-bottom-right-radius: 1rem;
-    border-bottom-left-radius: 0;
-    border-top-left-radius: 0; */
     padding: 0 0;
   }
 
-  /* Control the right side */
   .right-ambu {
     left: 60%;
     border-style: solid;
@@ -100,28 +67,6 @@ body {
     position: fixed;
     width: 40%;
     padding: 0 0;
-    /* background:  */
-  }
-
-  .right-admin {
-    left: 65%;
-    border-style: solid;
-    float: right;
-    right: 0;
-    position: fixed;
-    width: 60%;
-    padding: 0 0;
-
-    padding-top: 10%;
-    padding-left: 5%;
-    /* border-style: solid; */
-    align-items: center;
-    align-content: center;
-    /* display: flex; */
-    /* width: 40%; */
-    max-width: 600px;
-    float: left;
-    /* background: #ca0909; */
   }
 
 #map {

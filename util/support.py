@@ -5,6 +5,9 @@
 from datetime import datetime
 
 import models
+from models import storage
+from models.company import Company
+from models.hosp_operator import Hospital
 
 
 def is_valid_date(date):
@@ -56,3 +59,14 @@ def authenticate_inputs(*args):
     for i in args:
         if i == "" or i == None:
             return ("Missing input")
+
+
+def get_hospitals_db():
+    results = []
+    data_hospitals = storage.all(Hospital)
+    for obj in data_hospitals.values():
+        name = storage.get_one_by(Company, id=obj.company_id).name
+        obj.name = name
+        results.append(obj.to_dict())
+    hospitals = list(obj.to_dict() for obj in data_hospitals.values())
+    return hospitals
