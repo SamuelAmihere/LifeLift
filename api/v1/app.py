@@ -8,12 +8,16 @@ from flask_cors import CORS, cross_origin
 from flasgger import Swagger
 from flasgger.utils import swag_from
 
+host = environ.get('LFTLIFT_API_HOST', '0.0.0.0')
+port = environ.get('LFTLIFT_API_PORT', 5000)
 
 app = Flask(__name__)
-swagger = Swagger(app)
-cors = CORS(app, resources={r"/api/v1/*": {"origins": "*"}})
+
 app.register_blueprint(app_views)
-app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
+CORS(app, resources={'/*': {'origins': host}})
+swagger = Swagger(app)
+
+# app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
 
 # global strict slashes
 # app.url_map.strict_slashes = False
@@ -23,9 +27,14 @@ app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
 # app.config["SESSION_TYPE"] = "filesystem"
 # session(app)
 
-host = environ.get('LFTLIFT_API_HOST', '0.0.0.0')
-port = environ.get('LFTLIFT_API_PORT', 5000)
-   
+@app.route('/index',  methods=['GET'])
+@app.route('/', methods=['GET'])
+def status():
+    """ Status of API """
+    return jsonify({"status": "OK"})
+
+
+
 @app.teardown_appcontext
 def teardown_db(exception):
     """
@@ -53,7 +62,6 @@ app.config['SWAGGER'] = {
 
 
 
-
 if __name__ == "__main__":
     # app.config['SESSION_TYPE'] = 'filesystem'
     app.debug = True
@@ -63,4 +71,5 @@ if __name__ == "__main__":
     # host = environ.get('LIFELIFT_API_HOST')
     # if host is None:
     #     host = 'localhost'
-    app.run(host=host, port=port, threaded=True)
+    # app.run(host=host, port=port, threaded=True, use_reloader=False)
+    app.run(host=host, port=port)

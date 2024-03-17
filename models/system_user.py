@@ -11,6 +11,7 @@ from sqlalchemy.orm import relationship
 from models import storage_type
 from models.company import Company
 from models.contact import Contact
+from models.hosp_operator import HealthMessage
 from models.incident import Incident
 
 
@@ -97,6 +98,40 @@ class Staff(BaseModel, Base):
         internal_user_id = ""
         staff_number = ""
         status = ""
+
+class HospitalStaff(BaseModel, Base):
+    """This is the Hospital Staff class"""
+    fields_errMSG = {
+        **Staff.fields_errMSG,
+        **HealthMessage.fields_errMSG
+    }
+    if models.storage_type == "db":
+        __tablename__ = 'hospital_staff'
+        staff_id = Column(String(60), ForeignKey('staff.id'), nullable=False)
+        hospital_id = Column(String(60), ForeignKey('hospitals.id'), nullable=False)
+        health_messages = relationship("HealthMessage", back_populates="hospital_staff",
+                                       cascade="delete")
+    else:
+        staff_id = ""
+        health_messages = []
+
+        @property
+        def health_messages(self):
+            """This method returns a list of all health messages
+            for this staff member
+            """
+            if len(self.health_messages) > 0:
+                return self.health_messages
+            return None
+
+        @health_messages.setter
+        def health_messages(self, value):
+            """This method sets the list of all health messages
+            for this staff member
+            """
+            if value not in self.health_messages:
+                self.health_messages = value
+
 
 class AmbulanceStaff(BaseModel, Base):
     """This is the class for the ambulance staff

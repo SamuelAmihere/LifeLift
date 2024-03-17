@@ -4,9 +4,7 @@ import models
 from models.base_model import Base, BaseModel
 from sqlalchemy import Column, ForeignKey, String, Float
 from sqlalchemy.orm import relationship
-from models.company import Company
 from models.alert import alert_hospital
-from models.system_user import Staff
 
 if models.storage_type == "db":
     from models.location import location_hospitals
@@ -38,40 +36,6 @@ class HealthMessage(BaseModel, Base):
         message = Column(String(2000), nullable=False)
 
 
-class HospitalStaff(BaseModel, Base):
-    """This is the Hospital Staff class"""
-    fields_errMSG = {
-        **Staff.fields_errMSG,
-        **HealthMessage.fields_errMSG
-    }
-    if models.storage_type == "db":
-        __tablename__ = 'hospital_staff'
-        staff_id = Column(String(60), ForeignKey('staff.id'), nullable=False)
-        hospital_id = Column(String(60), ForeignKey('hospitals.id'), nullable=False)
-        health_messages = relationship("HealthMessage", back_populates="hospital_staff",
-                                       cascade="delete")
-    else:
-        staff_id = ""
-        health_messages = []
-
-        @property
-        def health_messages(self):
-            """This method returns a list of all health messages
-            for this staff member
-            """
-            if len(self.health_messages) > 0:
-                return self.health_messages
-            return None
-
-        @health_messages.setter
-        def health_messages(self, value):
-            """This method sets the list of all health messages
-            for this staff member
-            """
-            if value not in self.health_messages:
-                self.health_messages = value
-
-
 class Hospital(BaseModel, Base):
     """This is the Hospital Operator class"""
     fields_errMSG = {
@@ -97,7 +61,7 @@ class Hospital(BaseModel, Base):
         alerts = relationship("Alert", secondary=alert_hospital,
                              back_populates="hospitals")
         locations = relationship("Location", secondary=location_hospitals, back_populates="hospitals")
-        staff = relationship("HospitalStaff", back_populates="hospitals",
+        staff = relationship("HospitalStaff", backref="hospital",
                              cascade="delete")
     else:
         company_id = ""

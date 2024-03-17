@@ -13,7 +13,6 @@
 }
 
 .nav-btn-loc {
-    color: #3399FF;
     margin-left: 3px;
 
 }
@@ -26,14 +25,21 @@ a:active {
 
 .sub-menu {
     border-color: #240404;
-    height: 35px;
+    height: 40px;
     align-items: center;
     align-content: center;
+    
     /* margin-bottom: 1 solid #3a3737; */
     border-bottom: 1px solid #ee9a9a;
     transition: height 0.66s ease-out;
-    background: #d61212;
+    background: #800000;
     padding-bottom: 0;
     padding-top: 3px;
-    position: flex;    
+    position: flex;
+    font-size: 14px;
+    font-family: Circular,"Helvetica Neue",Helvetica,Arial,sans-serif;    
+}
+
+.sub-menu li {
+    color: #E8EAED;
 }

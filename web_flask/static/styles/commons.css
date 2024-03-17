@@ -1,5 +1,8 @@
 html {
     overflow-y: scroll;
+    /* width: 100%;
+    height: 100%;
+    margin: 0; */
 }
 
 body {
@@ -12,16 +15,32 @@ body {
     font-family: Circular,"Helvetica Neue",Helvetica,Arial,sans-serif;
 }
 
+@media screen and (max-device-width: 700px) {
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+    }
+    html {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+    }
+}
 
 .headerMenu {
-    height: 20%;
+    height: 90px;
     /* position: fixed; */
     /* padding-bottom: 10px; */
 
 }
 
 .sub-menu{
-    height: 20%;
+    height: 40px;
+    
+}
+.sub-menu a:active {
+    color: #E8EAED;
 }
 
 #req:hover {
@@ -33,25 +52,28 @@ body {
 }
 
 .contentContainer{
-    height: 80%;
+    /* height: 600px; */
+    height: 100%;
+    padding-top: 15px;
     /* position: fixed; */
     /* background: yellow; */
 }
 
 .split {
     /* position: relative; */
-    height: 600px;
-    border-width: 1px;
-    z-index: 1;
-    overflow-x: hidden;
-    padding-top: 20px;
+    margin-top: 10px;
+    height: 90%;
+    /* border-width: 1px; */
+    /* z-index: 1; */
+    /* overflow-x: hidden; */
+    /* padding-top: 21px; */
     border-top-color: coral;
   }
 
   /* Control the left side */
 .left {
-    padding-bottom: 0;
-    border-style: solid;
+    /* padding-bottom: 0; */
+    /* border-style: solid; */
     float: left;
     left: 0;
     /* position: fixed; */
@@ -61,16 +83,17 @@ body {
 
   .right-ambu {
     left: 60%;
-    border-style: solid;
+    /* border-style: solid; */
     float: right;
     right: 0;
-    position: fixed;
+    /* position: fixed; */
     width: 40%;
-    padding: 0 0;
+    /* padding: 0 0; */
   }
 
 #map {
-    height: 100%;
+    /* margin-top: 10px; */
+    /* height: 100%; */
     /* margin-bottom: 80px; */
     width: 100%;
     /* margin: 0 10px; */

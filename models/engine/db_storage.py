@@ -5,14 +5,13 @@ from models.base_model import Base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 from models.service import Service
-from models.system_user import  Patient
+from models.system_user import  HospitalStaff, Patient
 from models.review import Review, ReviewService
 from models.ambulance import Ambulance
 from models.ambu_operator import AmbulanceOwner
 from models.system_user import Driver, Dispatcher, Staff
 from models.user import User
 from models.hosp_operator import HealthMessage, Hospital, HealthTopic
-from models.hosp_operator import HospitalStaff
 from models.location import Address, Location, Site
 from models.alert import Alert
 from models.incident import Incident
@@ -38,8 +37,7 @@ class DBStorage:
                                       .format(getenv('LFTLIFT_MYSQL_USER'),
                                                 getenv('LFTLIFT_MYSQL_PWD'),
                                                 getenv('LFTLIFT_MYSQL_HOST'),
-                                                getenv('LFTLIFT_MYSQL_DB')),
-                                      pool_pre_ping=True)
+                                                getenv('LFTLIFT_MYSQL_DB')))
 
         if getenv('LFTLIFT_ENV') == 'test':
             Base.metadata.drop_all(self.__engine)
@@ -91,10 +89,10 @@ class DBStorage:
     def reload(self):
         """ This method creates all tables in the database """
         Base.metadata.create_all(self.__engine)
-        session_factory = sessionmaker(bind=self.__engine,
-                                       expire_on_commit=False)
-        Session = scoped_session(session_factory)
-        self.__session = Session()
+        self.__session = scoped_session(
+            sessionmaker(
+                bind=self.__engine,
+                expire_on_commit=False))
 
     def close(self):
         """ This method closes the session """

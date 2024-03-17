@@ -77,18 +77,21 @@
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   }
 
-  /* .request_container
+  .request_container
   {
 
     right: 5%;
     background-color: rgba(10, 11, 6, 0.6); 
     z-index: 1;
+    width: 500px;
     padding-bottom: 10px;
     padding-left: 15px;
     padding-top: 10px;
+    margin-top: 15px;
+    margin-left: 20px;
     font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
     font-weight: 100;
-  } */
+  }
 
 
   #emergency-form {
@@ -98,6 +101,8 @@
     font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
     font-weight: 100;
     padding: 0 5px;
+    padding-top: 15px;
+
   }
 
   #emergency-form .inp input {
@@ -129,12 +134,12 @@
 
 #request-header {
     font-size: 10px;
-    font-weight: 600;
+    font-weight: 500;
     color: #810A0A;
     background: #e7dada;
     align-content: center;
     align-items: center;
-    width: 95%;
+    width: 90%;
     align-self: center;
     border-radius: 5px;
     /* border shadow */

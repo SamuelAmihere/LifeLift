@@ -11,6 +11,7 @@ from flask import render_template, redirect, request, url_for, session
 from flask_cors import CORS, cross_origin
 from flasgger import Swagger
 from flask_session import Session
+import requests
 from models import company, storage
 from models import storage_type
 from models.hosp_operator import Hospital
@@ -78,7 +79,7 @@ def admin():
     session["user_type"]='admin'
         # if not there in the session then redirect to the login page
         # return redirect("/login")
-    results = get_hospitals_db()
+    results = requests.get('http://localhost:5005/api/v1/hospitals').json()
     return (render_template('admin.html',
                             hospitals=results,
                             GOOGLEMAP_API_KEY=GOOGLEMAP_API_KEY))
@@ -89,7 +90,10 @@ def admin():
 def home():
     """Home page"""
 
-    results = get_hospitals_db()
+    # results = get_hospitals_db()
+    # get data from api http://172.27.250.174:5005/api/v1/hospitals
+    results = requests.get('http://localhost:5005/api/v1/hospitals').json()
+    print("data: ", data)
 
     return (render_template('home.html',
                             hospitals=results,

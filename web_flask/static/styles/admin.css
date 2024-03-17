@@ -1,6 +1,6 @@
 .right-admin {
     /* left: 65%; */
-    border-style: solid;
+    /* border-style: solid; */
     /* width: 60%; */
     padding: 0 0;
 
@@ -9,24 +9,21 @@
   .adminMenu {
     /* position: fixed; */
     color: #000;
-    font-size: 14px;
-    font-weight: 700;
-    font-size: medium;
     /* background: #54bc1c; */
     align-items: center;
     padding: 0;
     height: 70%;
-    width: 20%;
+    width: 30%;
+    
   }
   .adminMenu li:hover {
-    background: #111010;
-    color: #fff;
+    background: #121212;
     transition: 0.3s;
     cursor: pointer;
   }
 
   .newClass {
-    background: #222221;
+    background: #121212;
   }
 
  .req-header {
@@ -46,7 +43,7 @@
 
 
 .admin-request-tb table{
-    height: 500px;
+    height: 700px;
     overflow-y: scroll;
     display: block;
 }

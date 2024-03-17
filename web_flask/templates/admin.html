@@ -19,6 +19,9 @@
     <li class="nav-item pat" id="pa">
       <a class="nav-link active" href="#" id="submenuPa">Requests</a>
     </li>
+    <li class="nav-item emvs-c" id="emvs">
+      <a class="nav-link active" href="#" id="submenuEmvs">Emergency Vehicles</a>
+    </li>
   </ul>
 </nav>
 
@@ -29,9 +32,15 @@
 
   <div class="admin-request-tb">
       {% if session['user_type'] == 'admin' %}
-      <h1 class="tb_title" id="tit">Hospitals</h1>
+      <div class="tb_title-div">
+        <h1 class="tb_title" id="tit"></h1>
+      </div>
+      <div class="filter-table">
+        <input type="text" id="myInput" onkeyup="filterTable()" placeholder="Search for locations.." title="Type in a name">
+      </div>
+      
 
-    <table class="table-striped">
+    <table class="table-striped" id="table-hosp-pat">
       <thead>
         <tr>
           <th>Hospital</th>
@@ -43,14 +52,41 @@
         </tr>
       </thead>
       <tbody>
-        {% for request in hospitals %}
-        <tr>
+        {% if hospitals[0]['__class__'] == 'Hospital' %}
+              {% for request in hospitals %}
+        <tr class="hosp-data">
             <td>{{ request['name'] }}</td>
             <td>{{ request['latitude'] }}</td>
             <td>{{ request['longitude'] }}</td>
             <td>{{ request['alerts'] }}</td>
         </tr>
-        {% endfor %}
+              {% endfor %}
+        {% endif %}
+        
+
+
+      </tbody>
+    </table>
+
+  <!-- Requests: Patients Table -->
+    <table class="table-striped-pat" id="table-hosp-pat">
+      <thead>
+        <tr>
+          <th>Current Requests</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- {% if hospitals[0]['__class__'] == 'Hospital' %}
+              {% for request in hospitals %}
+        <tr class="hosp-data">
+            <td>{{ request['name'] }}</td>
+            <td>{{ request['latitude'] }}</td>
+            <td>{{ request['longitude'] }}</td>
+            <td>{{ request['alerts'] }}</td>
+        </tr>
+              {% endfor %}
+        {% endif %} -->
       </tbody>
     </table>
 
@@ -64,5 +100,6 @@
 
 
 {% block scripts %}
-<script src="{{ url_for('static', filename='../static/styles/js/admin.js') }}"></script>
+<script src="{{ url_for('static', filename='../static/styles/js/admin/admin.js') }}"></script>
+<script src="{{ url_for('static', filename='../static/styles/js/admin/filter.js') }}"></script>
 {% endblock %}

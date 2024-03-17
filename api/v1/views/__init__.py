@@ -4,10 +4,9 @@ from flask import Blueprint
 
 app_views = Blueprint('app_views', __name__, url_prefix='/api/v1')
 
-from api.v1.views.index import *
 from api.v1.views.hospitals import *
-from api.v1.views.ambulances import *
-from api.v1.views.patients import *
-from api.v1.views.users import *
-from api.v1.views.health_messages import *
-from api.v1.views.active_ambulances import *
+# from api.v1.views.ambulances import *
+# from api.v1.views.patients import *
+# from api.v1.views.users import *
+# from api.v1.views.health_messages import *
+# from api.v1.views.active_ambulances import *
