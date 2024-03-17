@@ -21,31 +21,40 @@ ignore_keys = ['id', 'created_at', 'updated_at']
 @swag_from('documentation/hospital/get_hospital.yml', methods=['GET'])
 def get_hospitals():
     """Get all hospitals"""
-    # print(f"storage.all(Hospital): {storage.all(Hospital)}")
     results = []
     data_hospitals = storage.all(Hospital)
     for obj in data_hospitals.values():
         comp = storage.get_one_by(Company, id=obj.company_id)
         obj.name = comp.name
+        # fetch the company contact
+        print("2. =====================")
+        
+        contact = storage.get_one_by(Contact, address_id=comp.address_id)
+        if contact is None:
+            
+            # print(comp.address_id)
+            obj.contact = '+2330000000000'
+        else:
+            obj.contact = contact.phone_number
         results.append(obj.to_dict())
     
     return jsonify(results)
 
 
 
-
-
-# @app_views.route('/hospital/<hospital_id>', methods=['GET'],
-#                     strict_slashes=False)
-# @swag_from('documentation/hospital/get_hospital_id.yml', methods=['GET'])
-# def get_hospital(hospital_id=None):
-#     """Get a hospital by id"""
-#     obj = storage.get_one_by(Hospital, id=hospital_id)
-#     if obj is None:
-#         abort(404)
-#     comp = storage.get_one_by(Company, id=obj.company_id)
-#     obj.name = comp.name
-#     return jsonify(obj.to_dict())
+@app_views.route('/hospital/<hospital_id>', methods=['GET'],
+                    strict_slashes=False)
+@swag_from('documentation/hospital/get_hospital_id.yml', methods=['GET'])
+def get_hospital(hospital_id=None):
+    """Get a hospital by id"""
+    print("1. =====================")
+    print(f"hospital_id: {hospital_id}")
+    obj = storage.get_one_by(Hospital, id=hospital_id)
+    if obj is None:
+        abort(404)
+    comp = storage.get_one_by(Company, id=obj.company_id)
+    obj.name = comp.name
+    return jsonify(obj.to_dict())
 
 # @app_views.route('/hospital', methods=['POST'], strict_slashes=False)
 # @swag_from('documentation/hospital/post_hospital.yml', methods=['POST'])
