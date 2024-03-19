@@ -92,12 +92,12 @@ class CreateCompany:
             return None
 
         company = storage.get_one_by(Company,
-                                     address_id=address.id,
+                                     address_id=address.get('id'),
                                      name=co_data['name'])
         if not company:
 
             company = Company(name=co_data['name'],
-                              address_id=address.id,
+                              address_id=address.get('id'),
                               status=co_data['status'])
             if company:
                 company.save()
@@ -232,7 +232,7 @@ class CreateUser:
             return None
         contact = Contact(email=contact_data['email'],
                           phone_number=contact_data['phone'],
-                          address_id=address.id)
+                          address_id=address.get('id'))
         if contact:
             contact.save()
             return contact.to_dict()
@@ -253,21 +253,22 @@ class CreateUser:
             if field in data:
                 person_data[field] = data[field]
 
-        person = storage.get_one_by(Person,
-                                    first_name=person_data['fname'],
-                                    last_name=person_data['lname'],
-                                    gender=person_data['gender'])
-        if person:
-            Contact = storage.get_one_by(Contact, id=person.contact_id)
-            if Contact:
-                return person.to_dict()
         contact = self.create_contact(person_data)
         if not contact:
             return None
+        person = storage.get_one_by(Person,
+                                    first_name=person_data['fname'],
+                                    last_name=person_data['lname'],
+                                    gender=person_data['gender'],
+                                    contact_id=contact.get('id'))
+        if person:
+            return person.to_dict()
+        contact = self.create_contact(person_data)
+        # create person
         person = Person(first_name=person_data['fname'],
                         last_name=person_data['lname'],
                         gender=person_data['gender'],
-                        contact_id=contact.id)
+                        contact_id=contact.get('id'))
         if person:
             person.save()
             return person.to_dict()
@@ -293,11 +294,11 @@ class CreateUser:
             return None
         
         # check if user exists
-        int_user = storage.get_one_by(InternalUser, person_id=person.id)
+        int_user = storage.get_one_by(InternalUser, person_id=person.get('id'))
         if int_user:
             return int_user.to_dict()
         # create internal user
-        int_user = InternalUser(person_id=person.id)
+        int_user = InternalUser(person_id=person.get('id'))
         if int_user:
             int_user.save()
             return (int_user.to_dict())
@@ -336,7 +337,7 @@ class CreateUser:
         if not int_user:
             return None
         staff = Staff(staff_number=staff_data['staff_number'],
-                      internal_user_id=int_user.id,
+                      internal_user_id=int_user.get('id'),
                       status=staff_data['status'],
                       company_id=comp.id)
         if staff:
@@ -374,7 +375,7 @@ class CreateUser:
         # create user
         user = User(user_name=user_data['email'],
                     user_type=user_data['user_type'],
-                    staff_id=staff.id)
+                    staff_id=staff.get('id'))
         if user:
             user.generate_salt()
             user.set_password(user_data['password'])
@@ -428,10 +429,10 @@ class CreateExternalUser(CreateUser):
             return None
         incident.save()
         alert = self.create_alert(incident.id, pat_data)
-        if alert:
-            alert.save()
+        if not alert:
+            return None
         # create patient
-        patient = Patient(person_id=person.id,
+        patient = Patient(person_id=person.get('id'),
                           incident_id=incident.id,
                           relative_phone=pat_data['relative_phone'])
         if patient:

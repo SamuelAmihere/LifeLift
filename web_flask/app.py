@@ -93,7 +93,6 @@ def home():
     # results = get_hospitals_db()
     # get data from api http://172.27.250.174:5005/api/v1/hospitals
     results = requests.get('http://localhost:5005/api/v1/hospitals').json()
-    print("data: ", data)
 
     return (render_template('home.html',
                             hospitals=results,
@@ -149,18 +148,23 @@ def emergency_request():
             data_final['country'] = 'Ghana'
             data_final['zipcode'] = '00233'
 
-            print("data: ",data_final)
+            # Add fields for Alert
+            data_final['alert_type'] = data_final['incident_type']
+            data_final['alert_status'] = 'pending'
 
             # singUp_data = SignUp(data_final)
             # all_data = singUp_data.get_data()
             # # create patient
+            
+            print("========Final Data===========")
+            print("Data: ", data_final)
+        
             user_creator = CreateExternalUser()
             patient = user_creator.create_patient(data_final)
             if patient == None:
                 return (render_template('home.html', error="Error creating patient"))
             
-            print("========Patient created===========")
-            print("patient: ", patient)
+            
 
             # hospitals = nearby_hospitals(data_final['lat'],
             #                              data_final['lng'],
@@ -210,7 +214,7 @@ def login():
         else:
             session['user_name'] = data['user_name']
             session['user_type'] = user['user_type']
-
+            
 
             # # If user is admin
             # if user['user_type'] == 'admin':

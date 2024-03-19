@@ -139,9 +139,10 @@
         {% if session.user_type == 'admin' %}
         <div class="sub-menu" id="hoss" data-hospitals='{{ hospitals|tojson }}'>
         {% else %}
-        <div class="sub-menu">
+        <div class="sub-menu" id="hoss">
         {% endif %}      
         {% block subMenu %}
+
         {% endblock %}
       </div>
     </div>
@@ -244,6 +245,9 @@
       
 
       document.getElementById('req').addEventListener('click', function() {
+        // disable call button until form is submitted
+        document.getElementById('req').disabled = true;
+        
 
         // get hospitals: lat, lng, name
         var hospitals = get_hospitals();
@@ -337,8 +341,6 @@
         document.getElementsByClassName('contentContainer')[0].removeChild(document.getElementsByClassName('right')[0]);
         document.getElementsByClassName('contentContainer')[0].appendChild(form);
         
-        // formContainer.appendChild(form);
-        // document.body.appendChild(formContainer);
 
 
         // update the existing map passed as the paraameter the caller's location
@@ -347,11 +349,21 @@
         map.setZoom(14);
         //set title
         map.setOptions({title: 'Accra'});
+
+        var icon = {
+            url: "../static/images/emergency-call.png", // url
+            scaledSize: new google.maps.Size(50, 50), // scaled size
+            origin: new google.maps.Point(0,0), // origin
+            anchor: new google.maps.Point(0, 0) // anchor
+        };
           
         var marker = new google.maps.Marker({
           position: myLatLng,
           map: map,
-          title: 'Accra'
+          title: 'Caller',
+          icon: icon
+
+          
         });
         // Add a spining circle of radius 2 to the caller's location
         var circle = new google.maps.Circle({
@@ -421,20 +433,6 @@
 
           var fields = {fname: 'fname', lname: 'lname', email: 'email', phone: 'phone', street: 'street', relative_phone: 'relative_phone', incident_type: 'incident_type', incident_description: 'incident_description'};
           
-          // highlight empty fields and stop form submission
-
-          // check if any of the fields is empty
-          // for (var i = 0; i < fields.length; i++) {
-          //   if (fields[i] == '') {
-          //     fields[i].style.border = '1px solid red';
-          //     fields[i].style.backgroundColor = 'rgba(255, 0, 0, 0.1)';
-
-          //     // highlight the empty field
-          //     fields[i].focus();
-          //     return false;
-
-          //   } 
-          // }
           // if all fields are filled, submit the form
           if (fname != '' && lname != '' && email != '' && phone != '' && street != '' && relative_phone != '' && incident_type != '' && incident_description != '') {
             document.getElementById('emergency-form').submit();
@@ -442,41 +440,46 @@
             highlightEmptyFields(fields);
           }
 
+        //   if (document.getElementById('emergency-form')) {
+        //   // disable call button until form is submitted
+        //   document.getElementById('call-199').disabled = true;
+        // }
+
         }); //END OF EVENT LISTENER: 'emergency-form'
 
 
-        if (document.getElementById('emergency-form')) {
-        // disable call button until form is submitted
-        document.getElementById('req').disabled = true;
-        }
+
       });//END OF EVENT LISTENER
 
-      
-    } //END OF EMERGENCY REQUEST FUNCTION
 
-    // //restores the right pane of the contentContainer
-    // function restoreRightPane(){
-    //   var rightPane = document.createElement('div');
-    //   rightPane.setAttribute('class', 'split right');
-    //   //remove form from contentContainer and add rightPane
-    //   document.getElementsByClassName('contentContainer')[0].removeChild(document.getElementsByClassName('form-container')[0]);
-    //   document.getElementsByClassName('contentContainer')[0].appendChild(rightPane);
-    // }
+    } //END OF EMERGENCY REQUEST FUNCTION
 
     
     function get_hospitals(map){
-      
-      var hosdata = JSON.parse(document.getElementById('hoss').dataset.hospitals);
+      var hosd = document.getElementById('hoss');
+      if (hosd == null || hosd.getAttribute('data-hospitals') == null){
+        return null;
+      }
+      hosdata = JSON.parse(hosd.getAttribute('data-hospitals'));
       // place markers on the map
+      
       for (var i = 0; i < hosdata.length; i++) {
         var lat = hosdata[i].latitude;
         var lng = hosdata[i].longitude;
         var name = hosdata[i].name;
         var myLatLng = {lat: parseFloat(lat), lng: parseFloat(lng)};
+        
+        var icon = {
+            url: "../static/images/hospital-bed.png", // url
+            scaledSize: new google.maps.Size(50, 50), // scaled size
+            // origin: new google.maps.Point(0,0), // origin
+            // anchor: new google.maps.Point(0, 0) // anchor
+        };
         var marker = new google.maps.Marker({
           position: myLatLng,
           map: map,
-          title: name
+          title: name,
+          icon: icon
         });
 
         // Add a spining circle of radius 2 to the caller's location

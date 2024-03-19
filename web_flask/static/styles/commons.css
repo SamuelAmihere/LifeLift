@@ -74,6 +74,7 @@ body {
 .left {
     /* padding-bottom: 0; */
     /* border-style: solid; */
+    height: 800px;
     float: left;
     left: 0;
     /* position: fixed; */

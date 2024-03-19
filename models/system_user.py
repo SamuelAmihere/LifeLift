@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 """This is the user class"""
 import models
+from models.alert import Alert
 from models.ambulance import Ambulance
 from models.base_model import BaseModel, Base
 from sqlalchemy import Column, Enum, String
@@ -46,7 +47,7 @@ class Patient(BaseModel, Base):
         # to create person
         **Person.fields_errMSG,
         # to create incident
-        **Incident.fields_errMSG,
+        **Alert.fields_errMSG,
     }
     if storage_type == "db":
         __tablename__ = 'patients'
