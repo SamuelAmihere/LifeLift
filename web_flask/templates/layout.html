@@ -81,8 +81,6 @@
                     <a class="nav-link" href="/home">Home</a>
                   </li>
                 {% endblock %} <!-- homePg_nav -->
-
-
                 
                 {% if session.user_type == 'admin' %}
                 <li class="nav-item">
@@ -173,10 +171,12 @@
     
 
 
-    <script>
 
-    function initMap() {
-        var myLatLng = {lat: 5.6310532, lng: -0.3260097};
+    <script src="{{ url_for('static', filename='../static/styles/js/home.js') }}">
+    </script>
+    <script>
+      function initMap() {
+        var myLatLng = {lat: 5.621937, lng: -0.176326};
 
         var map = new google.maps.Map(document.getElementById('map'), {
         zoom: 12,
@@ -234,321 +234,212 @@
         // create autocomplete objects for all inputs
         emergencyRequest(map);
 
-      
     }
+
 
     function emergencyRequest(map){
-      // Event listener to call generateRoute random latitudes and longitudes pairs
-      // within a city on the map when the button (call-199) is clicked
-      
-      // first check if the form is already on the page, if so remove it
-      
 
       document.getElementById('req').addEventListener('click', function() {
-        // disable call button until form is submitted
-        document.getElementById('req').disabled = true;
-        
-
-        // get hospitals: lat, lng, name
-        var hospitals = get_hospitals();
-
-        var lat = (Math.random() * (5.7 - 5.5) + 5.5).toFixed(6);
-        var lng = (Math.random() * (-0.2 - -0.4) + -0.4).toFixed(6);
-        var myLatLng = {lat: parseFloat(lat), lng: parseFloat(lng)};
-
-        // First Give a caller a suspended form at center of window to fill for emergency request
-        // The form will be submitted to the server for ambulance to pick up
-
-        //create dive
-        //set the form container
-
-        // var formContainer = document.createElement('div');
-        // formContainer.setAttribute('class', 'emergency-form-container');
-
-        //create form and add to div: emergency-form-container
-        var form = document.createElement('form');
-        form.setAttribute('method', 'post');
-        form.setAttribute('action', '/emergency_request');
-        form.setAttribute('id', 'emergency-form');
-        form.setAttribute('class', 'form-container split right');
-        form.innerHTML = `
-        <div class="request_container">
-          <div id="request-header">
-              <h2> Request for emergency service</h1>
-          </div>
-
-              <input type="text" id="lat" name="lat" value="${lat}" readonly>
-
-
-              <input type="text" id="lng" name="lng" value="${lng}" readonly>
-
-
-              <input type="text" id="location" name="location" value="Accra" readonly>
-
-            <hr>
-
-            <div class="col-md-6 inp">
-              <input type="text" class="form-control" id="fname" value="{{ request.form['fname'] }}" name="fname" 
-              placeholder="First Name">
-            </div>
-            <div class="col-md-6 inp">
-              <input type="text" class="form-control" id="lname" value="{{ request.form['lname'] }}" name="lname" 
-              placeholder="Last Name">
-            </div>
-            <div class="col-md-6 inp">
-              <input type="email" class="form-control" id="email" value="{{ request.form['email'] }}" name="email" 
-              placeholder="Email">
-            </div>
-            <div class="col-md-6 inp">
-              <input type="text" class="form-control" id="phone" value="{{ request.form['phone'] }}" name="phone" 
-              placeholder="Phone Number">
-            </div>
-
-            <div class="col-md-6 inp">
-              <input type="text" class="form-control" id="street" value="{{ request.form['street'] }}" name="street" 
-              placeholder="Street">
-            </div>
-            <div class="col-md-6 inp">
-              <input type="text" class="form-control" id="relative_phone" value="{{ request.form['relative_phone'] }}" name="relative_phone" 
-              placeholder="Relative Phone">
-            </div>
-
-            <div class="col-md-4">
-                <select id="incident_type" name="incident_type" class="form-select">
-                    {% for o in incident_type %}
-                    <option value="{{ o }}" >{{ o }}</option>
-                    {% endfor %} 
-                </select>
-            </div><br>
-
-            <div class="col-md-2" style="width:15px; height: 10px;">
-                    <select id="gender" name="gender" class="form-select">
-                      <option>gender...</option>
-                        <option value="male" >male</option>
-                        <option value="female" >female</option>
-                        <option value="other" >other</option>
-                    </select>
-            </div><br>
-
-            <div class="row-md-4">
-              <textarea id="incident_description" name="incident_description"rows="4" cols="50" placeholder="Describe here..."></textarea> 
-            </div><br>
-            <button type="submit" class="btn">Submit</button>
-            <br>
-        </div>
-        `;
-        //remove right from contentContainer and add form
-        document.getElementsByClassName('contentContainer')[0].removeChild(document.getElementsByClassName('right')[0]);
-        document.getElementsByClassName('contentContainer')[0].appendChild(form);
-        
-
-
-        // update the existing map passed as the paraameter the caller's location
-
-        map.setCenter(myLatLng);
-        map.setZoom(14);
-        //set title
-        map.setOptions({title: 'Accra'});
-
-        var icon = {
-            url: "../static/images/emergency-call.png", // url
-            scaledSize: new google.maps.Size(50, 50), // scaled size
-            origin: new google.maps.Point(0,0), // origin
-            anchor: new google.maps.Point(0, 0) // anchor
-        };
-          
-        var marker = new google.maps.Marker({
-          position: myLatLng,
-          map: map,
-          title: 'Caller',
-          icon: icon
-
-          
-        });
-        // Add a spining circle of radius 2 to the caller's location
-        var circle = new google.maps.Circle({
-          map: map,
-          radius: 200,    // 10 miles in metres
-          fillColor: '#AA0000'
-        });
-        circle.bindTo('center', marker, 'position');
-        // Add a spining circle of radius 2 to the caller's location
-        // animate the circle with constant rotation, and transparency
-        var rotate = 0;
-        window.setInterval(function() {
-          rotate += 3;
-          circle.setOptions({
-            strokeColor: '#0000FF',
-            //change the color intensity by changing the fill color
-            fillColor: (function() {
-              var color = '#';
-              for (var i = 0; i < 6; i++) {
-                color += (Math.random() * 16 | 0).toString(16);
-              }
-              return color;
-            })(Math.floor(Math.random() * 16777215).toString(16)),
-
-            fillOpacity: 0.4,
-            strokeOpacity: 0.8,
-            strokeWeight: 2,
-            animation: google.maps.Animation.BOUNCE,
-            center: myLatLng,
-            radius: 400,
-            editable: true,
-            draggable: true,
-            visible: true,
-            clickable: true,
-            zIndex: 1,
-            rotation: rotate
-          });
-        }, 1000);
-      
-
-
-        //send the caller's location (lat, long and location name) to the
-        //server (/emergency_request) for ambulance to pick up
-        var xhr = new XMLHttpRequest();
-        xhr.open("POST", "/emergency_request", true); //true for asynchronous
-        xhr.setRequestHeader('Content-Type', 'application/json');
-        xhr.send(JSON.stringify({lat: lat, lng: lng, location: 'Accra'}));
-        xhr.onreadystatechange = function() {
-          if (xhr.readyState == 4 && xhr.status == 200) {
-            console.log(xhr.responseText);
-          }
-          
+        if (document.getElementsByClassName('form-container')[0]) {
+          return;
         }
 
+      // get hospitals: lat, lng, name
+      var hospitals = get_hospitals();
+
+      var lat = (Math.random() * (5.7 - 5.5) + 5.5).toFixed(6);
+      var lng = (Math.random() * (-0.2 - -0.4) + -0.4).toFixed(6);
+      var myLatLng = {lat: parseFloat(lat), lng: parseFloat(lng)};
+
+      //create form and add to div: emergency-form-container
+      var form = document.createElement('form');
+      form.setAttribute('method', 'post');
+      form.setAttribute('action', '/emergency_request');
+      form.setAttribute('id', 'emergency-form');
+      form.setAttribute('class', 'form-container split right');
+      form.innerHTML = `
+  <div class="request_container">
+    <div id="request-header">
+        <h2> Request for emergency service</h1>
+    </div>
+
+        <input type="text" id="lat" name="lat" value="${lat}" readonly>
+
+
+        <input type="text" id="lng" name="lng" value="${lng}" readonly>
+
+
+        <input type="text" id="location" name="location" value="Accra" readonly>
+
+      <hr>
+
+      <div class="col-md-6 inp">
+        <input type="text" class="form-control" id="fname" value="{{ request.form['fname'] }}" name="fname" 
+        placeholder="First Name">
+      </div>
+      <div class="col-md-6 inp">
+        <input type="text" class="form-control" id="lname" value="{{ request.form['lname'] }}" name="lname" 
+        placeholder="Last Name">
+      </div>
+      <div class="col-md-6 inp">
+        <input type="email" class="form-control" id="email" value="{{ request.form['email'] }}" name="email" 
+        placeholder="Email">
+      </div>
+      <div class="col-md-6 inp">
+        <input type="text" class="form-control" id="phone" value="{{ request.form['phone'] }}" name="phone" 
+        placeholder="Phone Number">
+      </div>
+
+      <div class="col-md-6 inp">
+        <input type="text" class="form-control" id="street" value="{{ request.form['street'] }}" name="street" 
+        placeholder="Street">
+      </div>
+      <div class="col-md-6 inp">
+        <input type="text" class="form-control" id="relative_phone" value="{{ request.form['relative_phone'] }}" name="relative_phone" 
+        placeholder="Relative Phone">
+      </div>
+
+      <div class="col-md-4">
+          <select id="incident_type" name="incident_type" class="form-select">
+              {% for o in incident_type %}
+              <option value="{{ o }}" >{{ o }}</option>
+              {% endfor %} 
+          </select>
+      </div><br>
+
+      <div class="col-md-2" style="width:15px; height: 10px;">
+              <select id="gender" name="gender" class="form-select">
+                <option>gender...</option>
+                  <option value="male" >male</option>
+                  <option value="female" >female</option>
+                  <option value="other" >other</option>
+              </select>
+      </div><br>
+
+      <div class="row-md-4">
+        <textarea id="incident_description" name="incident_description"rows="4" cols="50" placeholder="Describe here..."></textarea> 
+      </div><br>
+      <button type="submit" class="btn">Submit</button>
+      <br>
+  </div>
+  `;
+      //remove right from contentContainer and add form
+      document.getElementsByClassName('contentContainer')[0].removeChild(document.getElementsByClassName('right')[0]);
+      document.getElementsByClassName('contentContainer')[0].appendChild(form);
+  
+
+      // update the existing map passed as the paraameter the caller's location
+
+      map.setCenter(myLatLng);
+      map.setZoom(14);
+      //set title
+      map.setOptions({title: 'Accra'});
+
+      var icon = {
+          url: "../static/images/emergency-call.png", // url
+          scaledSize: new google.maps.Size(50, 50), // scaled size
+          origin: new google.maps.Point(0,0), // origin
+          anchor: new google.maps.Point(0, 0) // anchor
+      };
+
+      var marker = new google.maps.Marker({
+        position: myLatLng,
+        map: map,
+        title: 'Caller',
+        icon: icon
+
+        
+      });
+      // Add a spining circle of radius 2 to the caller's location
+      var circle = new google.maps.Circle({
+        map: map,
+        radius: 200,    // 10 miles in metres
+        fillColor: '#AA0000'
+      });
+      circle.bindTo('center', marker, 'position');
+      // Add a spining circle of radius 2 to the caller's location
+      // animate the circle with constant rotation, and transparency
+      var rotate = 0;
+      window.setInterval(function() {
+        rotate += 3;
+        circle.setOptions({
+          strokeColor: '#0000FF',
+          //change the color intensity by changing the fill color
+          fillColor: (function() {
+            var color = '#';
+            for (var i = 0; i < 6; i++) {
+              color += (Math.random() * 16 | 0).toString(16);
+            }
+            return color;
+          })(Math.floor(Math.random() * 16777215).toString(16)),
+
+          fillOpacity: 0.4,
+          strokeOpacity: 0.8,
+          strokeWeight: 2,
+          animation: google.maps.Animation.BOUNCE,
+          center: myLatLng,
+          radius: 400,
+          editable: true,
+          draggable: true,
+          visible: true,
+          clickable: true,
+          zIndex: 1,
+          rotation: rotate
+        });
+      }, 1000);
+
+
+
+      //send the caller's location (lat, long and location name) to the
+      //server (/emergency_request) for ambulance to pick up
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", "/emergency_request", true); //true for asynchronous
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.send(JSON.stringify({lat: lat, lng: lng, location: 'Accra'}));
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState == 4 && xhr.status == 200) {
+          console.log(xhr.responseText);
+        }
+        
+      }
+
       // authenticate the request form: 'emergency-form'
-        // prevent empty fields from being submitted
-        document.getElementById('emergency-form').addEventListener('submit', function(e) {
-          e.preventDefault();
-          var fname = document.getElementById('fname').value;
-          var lname = document.getElementById('lname').value;
-          var email = document.getElementById('email').value;
-          var phone = document.getElementById('phone').value;
-          var street = document.getElementById('street').value;
-          var relative_phone = document.getElementById('relative_phone').value;
-          var incident_type = document.getElementById('incident_type').value;
-          var incident_description = document.getElementById('incident_description').value;
+      // prevent empty fields from being submitted
+      document.getElementById('emergency-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        var fname = document.getElementById('fname').value;
+        var lname = document.getElementById('lname').value;
+        var email = document.getElementById('email').value;
+        var phone = document.getElementById('phone').value;
+        var street = document.getElementById('street').value;
+        var relative_phone = document.getElementById('relative_phone').value;
+        var incident_type = document.getElementById('incident_type').value;
+        var incident_description = document.getElementById('incident_description').value;
 
-          var fields = {fname: 'fname', lname: 'lname', email: 'email', phone: 'phone', street: 'street', relative_phone: 'relative_phone', incident_type: 'incident_type', incident_description: 'incident_description'};
-          
-          // if all fields are filled, submit the form
-          if (fname != '' && lname != '' && email != '' && phone != '' && street != '' && relative_phone != '' && incident_type != '' && incident_description != '') {
-            document.getElementById('emergency-form').submit();
-          } else {
-            highlightEmptyFields(fields);
-          }
+        var fields = {fname: 'fname', lname: 'lname', email: 'email', phone: 'phone', street: 'street', relative_phone: 'relative_phone', incident_type: 'incident_type', incident_description: 'incident_description'};
+        
+        // if all fields are filled, submit the form
+        if (fname != '' && lname != '' && email != '' && phone != '' && street != '' && relative_phone != '' && incident_type != '' && incident_description != '') {
+          document.getElementById('emergency-form').submit();
+        } else {
+          highlightEmptyFields(fields);
+        }
 
-        //   if (document.getElementById('emergency-form')) {
-        //   // disable call button until form is submitted
-        //   document.getElementById('call-199').disabled = true;
-        // }
-
-        }); //END OF EVENT LISTENER: 'emergency-form'
+      }); //END OF EVENT LISTENER: 'emergency-form'
 
 
 
-      });//END OF EVENT LISTENER
-
+    });//END OF EVENT LISTENER: 'req'
+    
 
     } //END OF EMERGENCY REQUEST FUNCTION
-
-    
-    function get_hospitals(map){
-      var hosd = document.getElementById('hoss');
-      if (hosd == null || hosd.getAttribute('data-hospitals') == null){
-        return null;
-      }
-      hosdata = JSON.parse(hosd.getAttribute('data-hospitals'));
-      // place markers on the map
-      
-      for (var i = 0; i < hosdata.length; i++) {
-        var lat = hosdata[i].latitude;
-        var lng = hosdata[i].longitude;
-        var name = hosdata[i].name;
-        var myLatLng = {lat: parseFloat(lat), lng: parseFloat(lng)};
-        
-        var icon = {
-            url: "../static/images/hospital-bed.png", // url
-            scaledSize: new google.maps.Size(50, 50), // scaled size
-            // origin: new google.maps.Point(0,0), // origin
-            // anchor: new google.maps.Point(0, 0) // anchor
-        };
-        var marker = new google.maps.Marker({
-          position: myLatLng,
-          map: map,
-          title: name,
-          icon: icon
-        });
-
-        // Add a spining circle of radius 2 to the caller's location
-        var circle = new google.maps.Circle({
-          map: map,
-          radius: 200,    // 10 miles in metres
-          fillColor: '#AA0000'
-        });
-        circle.bindTo('center', marker, 'position');
-        // Add a spining circle of radius 2 to the caller's location
-        // animate the circle with constant rotation, and transparency
-        var rotate = 0;
-        window.setInterval(function() {
-          rotate += 3;
-          circle.setOptions({
-            strokeColor: '#0000FF',
-            //change the color intensity by changing the fill color
-            fillColor: (function() {
-              var color = '#';
-              for (var i = 0; i < 6; i++) {
-                color += (Math.random() * 16 | 0).toString(16);
-              }
-              return color;
-            })(Math.floor(Math.random() * 16777215).toString(16)),
-
-            fillOpacity: 0.4,
-            strokeOpacity: 0.8,
-            strokeWeight: 2,
-            animation: google.maps.Animation.BOUNCE,
-            center: myLatLng,
-            radius: 400,
-            editable: true,
-            draggable: true,
-            visible: true,
-            clickable: true,
-            zIndex: 1,
-            rotation: rotate
-          });
-        }, 1000);
-      }
-    }
-      
-
-
-
-
-    function highlightEmptyFields(fields)
-    {
-      for (var i = 0; i < fields.length; i++) {
-        if (fields[i] == '') {
-          fields[i].style.border = '1px solid red';
-          fields[i].style.backgroundColor = 'rgba(255, 0, 0, 0.1)';
-          console.log(fields[i]);
-
-          // highlight the empty field
-          fields[i].focus();
-          return false;
-
-        } 
-      }
-    }
-
-
     </script>
-    
+
+    <!-- <script src="{{ url_for('static', filename='../static/styles/js/home.js') }}"></script>
     <script async defer
-    
-        src="https://maps.googleapis.com/maps/api/js?key={{GOOGLEMAP_API_KEY|safe }}&callback=initMap">       
-    </script>
+  
+        src="https://maps.googleapis.com/maps/api/js?key={{GOOGLEMAP_API_KEY|safe }}&callback=initMap">
+    </script> -->
     {% block scripts %}
       
     {% endblock %}

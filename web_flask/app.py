@@ -14,6 +14,7 @@ from flask_session import Session
 import requests
 from models import company, storage
 from models import storage_type
+from models.ambu_operator import AmbulanceOwner
 from models.hosp_operator import Hospital
 from models.incident import Incident
 from models.location import Address
@@ -65,6 +66,12 @@ login_msg = {
     'user_name': 'Missing user name',
     'mail': 'Missing email',
     'password': 'Missing password',
+}
+
+staff_category = {
+    'nurse': Hospital,
+    'driver': AmbulanceOwner,
+    'admin': Hospital,
 }
 
 
@@ -201,8 +208,11 @@ def login():
 
         error = {}
 
-        if user == 0 or user == 1:
+
+        if user == 0:
             error["email"] = "*Incorrect Email"
+        elif user == 1:
+            error["user_name"] = "*User does not exist"
         elif user == 2:
             error["password"] = "*Incorrect Password"
         else:
@@ -242,6 +252,12 @@ def register():
 
     usertType = ['admin', 'company', 'nurse', 'driver']
     gender = ['male', 'female']
+    other_info = {
+        'city': 'Accra',
+        'state': 'Greater Accra',
+        'country': 'Ghana',
+        'zipcode': '00233'
+    }
     registration = {"success": None,
                     "error": None,
                     "user_exits": None
@@ -249,15 +265,29 @@ def register():
     # error_registration = None
     if request.method == 'POST':
         data = {}
+        for i, j in other_info.items():
+                if request.form.get(i) is None or data[i] == "":
+                    data[i] = j
         for key in details_msg:
-            if request.form.get(key) is None or request.form.get(key) == "":
+            # Update data with other info
+            
+            # if request.form.get(key) is None or request.form.get(key) == "":
+
+            #     return (render_template('register.html',
+            #                             registration=registration,
+            #                             field_error=details_msg[key],
+            #                             GOOGLEMAP_API_KEY=GOOGLEMAP_API_KEY,
+            #                             usertType=usertType, gender=gender))
+            # check if the field is empty
+            if request.form.get(key) == "":
                 return (render_template('register.html',
                                         registration=registration,
                                         field_error=details_msg[key],
                                         GOOGLEMAP_API_KEY=GOOGLEMAP_API_KEY,
-                                        usertType=usertType, gender=gender))
-            
+                                        usertType=usertType
+                                        ))
             data[key] = request.form.get(key.strip())
+
         # create user
         user_creator = CreateUser()
         my_user = user_creator.create_user(data)

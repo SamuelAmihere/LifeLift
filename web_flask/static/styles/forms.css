@@ -1,15 +1,19 @@
 .login-Main {
-    /* position: fixed;
-    background-color: #f5f5f5; */
-    /* padding-top: 5px; */
+    position: fixed;
+    background-color: #f5f5f5;
+    padding-top: 5px;
 }
 
-/* #right-ambu.login-Main {
+#right-ambu .login-Main {
     width: 30%;
     border-collapse: collapse;
     border-spacing: 0;
     background: #ee9a9a;
+    
   
+  }
+  .login-register {
+    padding-left: 20px;
   }
 
   form {

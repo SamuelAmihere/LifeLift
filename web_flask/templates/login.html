@@ -1,4 +1,7 @@
 {% extends 'layout.html' %}
+{% block header %}
+<link rel="stylesheet" href="{{ url_for('static', filename='../static/styles/forms.css') }}">
+{% endblock %}
 
 {% block loginPage %}
 <li class="nav-item">
@@ -12,8 +15,9 @@
 
 {% endblock %}
 {% block rightPane %}
-<div class="split right-admin">
-  <table id="ambus">
+<div class="split right-admin login-register">
+  <table>
+    {% block FormContent %}
     <tr>
       <td id="login-header">Login</td>
     </tr>
@@ -22,9 +26,9 @@
       <td>
         <div id="login-Main">
           <form action="{{ url_for('login') }}" method="post">
-            {% for err in error %}
+            {% for err in error_login %}
               {% if err %}
-                <p style="color: red;">{{ error[err] }}</p>
+              <p style="color: red;">{{ error_login[err] }}</p>
               {% endif %}
             {% endfor %}
             <div class="form-row align-items-right">
@@ -71,6 +75,8 @@
       </td>
       
     </tr>
+    {% endblock %}
+
   </table>
 </div>
 {% endblock %}
