@@ -26,15 +26,6 @@
     border-radius: 1px;
 }
 
-.right {
-    /* padding-bottom: 0; */
-    /* border-style: solid; */
-    float: right;
-    right: 0;
-    /* position: fixed; */
-    width: 40%;
-    /* padding: 2 2; */
-    border-color: #5f5757;
-    /* border-width: 2px; */
-    /* background: #4a25ef; */
+.patient-request {
+    
 }

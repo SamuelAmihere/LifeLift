@@ -5,8 +5,9 @@ import os
 from random import random
 import sys
 import uuid
+from datetime import datetime
 
-from flask import Flask, abort, jsonify, make_response
+from flask import Flask, abort, flash, jsonify, make_response
 from flask import render_template, redirect, request, url_for, session
 from flask_cors import CORS, cross_origin
 from flasgger import Swagger
@@ -18,7 +19,7 @@ from models.ambu_operator import AmbulanceOwner
 from models.hosp_operator import Hospital
 from models.incident import Incident
 from models.location import Address
-from models.system_user import Patient, Person
+from models.system_user import Patient, Person, Staff
 from models.user import User
 from models.utils.create_companies import create_hospitals
 from models.utils.google import nearby_hospitals, read_hospital_data_json
@@ -26,12 +27,19 @@ from models.utils.sign_up import SignUp
 from models.utils.create_table import CreateExternalUser, CreateUser, login_user
 from models.company import Company
 from util.support import get_hospitals_db
+from flask_login import LoginManager, current_user, login_required, logout_user
 
 app = Flask(__name__)
 app.secret_key = 'super secret key'
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
+# CORS(app)
+# Swagger(app)
+login_manager = LoginManager()
+login_manager.login_view = "login"
+login_manager.init_app(app)
+login_manager.session_protection = None
 
 
 visitors = "visitors.json"
@@ -44,9 +52,8 @@ GOOGLEMAP_API_KEY = os.getenv('GOOGLEMAP_API_KEY')
 
 # Siging up
 details_msg = {
-    'staffNum': 'Missing staff number',
+    **Staff.fields_errMSG,
     'password': 'Missing password',
-    'userType': 'Missing user type',
 }
 details_msg.update(Person.fields_errMSG)
 address_msg = Address.fields_errMSG
@@ -79,6 +86,7 @@ data = {} # store the data from the form
 
 # Admin page
 @app.route('/admin', methods=['GET'])
+@login_required
 def admin():
     """Admin page"""
     # if session["user_name"] == None:
@@ -86,10 +94,14 @@ def admin():
     session["user_type"]='admin'
         # if not there in the session then redirect to the login page
         # return redirect("/login")
-    results = requests.get('http://localhost:5005/api/v1/hospitals').json()
+    hosp = requests.get('http://localhost:5005/api/v1/hospitals').json()
+    pat = requests.get('http://localhost:5005/api/v1/patients').json()
+
     return (render_template('admin.html',
-                            hospitals=results,
-                            GOOGLEMAP_API_KEY=GOOGLEMAP_API_KEY))
+                            hospitals=hosp,
+                            patients=pat,
+                            requests_count=pat[-1].get('No'),
+                            ))#GOOGLEMAP_API_KEY=GOOGLEMAP_API_KEY
 
 # Home page
 @app.route('/', methods=['GET'])
@@ -100,24 +112,26 @@ def home():
     # results = get_hospitals_db()
     # get data from api http://172.27.250.174:5005/api/v1/hospitals
     results = requests.get('http://localhost:5005/api/v1/hospitals').json()
-
+    pat = requests.get('http://localhost:5005/api/v1/patients').json()
+    
     return (render_template('home.html',
                             hospitals=results,
+                            patients=pat,
                             incident_type=['Health', 'Accident', 'Fire', 'Robbery', 'Others'],
-                            GOOGLEMAP_API_KEY=GOOGLEMAP_API_KEY))
+                            ))#GOOGLEMAP_API_KEY=GOOGLEMAP_API_KEY
 
 # Google map page
 @app.route('/map', methods=['GET'])
 def map():
     """Google map page"""
     GOOGLEMAP_API_KEY = os.getenv('GOOGLEMAP_API_KEY')
-    return (render_template('googlemap.html', GOOGLEMAP_API_KEY=GOOGLEMAP_API_KEY))
+    return (render_template('googlemap.html', ))#GOOGLEMAP_API_KEY=GOOGLEMAP_API_KEY
 
 # Ambulance page
 @app.route('/ambulance', methods=['GET'])
 def ambulance():
     """Ambulance page"""
-    return (render_template('ambu.html', GOOGLEMAP_API_KEY=GOOGLEMAP_API_KEY))
+    return (render_template('ambu.html', ))#GOOGLEMAP_API_KEY=GOOGLEMAP_API_KEY
 
 # Emergency request
 @app.route('/emergency_request', methods=['POST'])
@@ -185,11 +199,28 @@ def emergency_request():
 @app.route('/hospital', methods=['GET'])
 def hospital():
     """Hospital page"""
-    return (render_template('hosp.html', GOOGLEMAP_API_KEY=GOOGLEMAP_API_KEY))
+    return (render_template('hosp.html' ))#GOOGLEMAP_API_KEY=GOOGLEMAP_API_KEY
 
+# Health tip page
+@app.route('/health_tip', methods=['GET'])
+@login_required
+def health_tip():
+    """Health tip page"""
+    topic = [
+        {'topic': 'First Aid', 'id':'ythrhyh4545hgegr'},
+        {'topic': 'Malaria', 'id':'ythrhyh4545hgegr'},
+        {'topic': 'Cholera', 'id':'ythrhyh4545hgegr'},
+        {'topic': 'Diabetes', 'id':'ythrhyh4545hgegr'},
+        {'topic': 'Hypertension', 'id':'ythrhyh4545hgegr'}]
+    return (render_template('health_tip.html', healthTopic=topic, name=current_user.user_name))
 
 # login page
+@login_manager.user_loader
+def load_user(user_id):
+    return storage.get_one_by(User, user_id)
+
 @app.route('/login', methods=['GET', 'POST'])
+@login_manager.user_loader
 def login():
     """Login page"""
     if request.method == 'POST':
@@ -202,13 +233,11 @@ def login():
         # authenticate user
         email = str(data['user_name']) + '@' + str(data['mail'])
 
+
         pwd = data['password']
         
         user = login_user(email, pwd)
-
         error = {}
-
-
         if user == 0:
             error["email"] = "*Incorrect Email"
         elif user == 1:
@@ -218,31 +247,46 @@ def login():
         else:
             pass
         if len(error) > 0:
+                print("========Error===========")
+                print("Error: ", error)
                 return (render_template('login.html',
-                                        GOOGLEMAP_API_KEY=GOOGLEMAP_API_KEY,
-                                        error_login=error))
+                                        
+                                        error_login=error))#GOOGLEMAP_API_KEY=GOOGLEMAP_API_KEY,
         else:
-            session['user_name'] = data['user_name']
-            session['user_type'] = user['user_type']
+            next = request.args.get('next')
             
+            # session['user_name'] = data['user_name']
+            # session['user_type'] = user['user_type']
+
+            remember_me = True
+
+            
+            login_user(user, remember_me)
+
 
             # # If user is admin
             # if user['user_type'] == 'admin':
             #     requests_info = storage.get_all_requests()
-            
-            return (redirect (url_for('admin')))
+
+            if user.get('user_type') == 'admin':
+                return (redirect (url_for('admin')))
+            elif user.get('user_type') == 'nurse':
+                print("========User===========")
+                print("User: ", user.get('user_type'))
+                return (redirect(url_for('health_tip')))
         
         
     return (render_template('login.html',
-                            GOOGLEMAP_API_KEY=GOOGLEMAP_API_KEY))
+                            ))#GOOGLEMAP_API_KEY=GOOGLEMAP_API_KEY
 
 
 # logout page
 @app.route('/logout', methods=['GET'])
+@login_required
 def logout():
     """Logout page"""
-    session['user_name'] = None
-    session['user_type'] = None
+    logout_user()
+    # flash("You were logged out.", "success")
     return redirect(url_for('home'))
 
 # register page
@@ -252,22 +296,26 @@ def register():
 
     usertType = ['admin', 'company', 'nurse', 'driver']
     gender = ['male', 'female']
+    
     other_info = {
         'city': 'Accra',
         'state': 'Greater Accra',
         'country': 'Ghana',
-        'zipcode': '00233'
+        'zipcode': '00233',
+        'status': 'active',
     }
-    registration = {"success": None,
-                    "error": None,
-                    "user_exits": None
-                    }
+
+    registration = {
+        "success": None,
+        "error": None,
+        "user_exits": None
+        }
     # error_registration = None
     if request.method == 'POST':
+
+
         data = {}
-        for i, j in other_info.items():
-                if request.form.get(i) is None or data[i] == "":
-                    data[i] = j
+
         for key in details_msg:
             # Update data with other info
             
@@ -283,41 +331,56 @@ def register():
                 return (render_template('register.html',
                                         registration=registration,
                                         field_error=details_msg[key],
-                                        GOOGLEMAP_API_KEY=GOOGLEMAP_API_KEY,
+                                        
                                         usertType=usertType
-                                        ))
+                                        ))#GOOGLEMAP_API_KEY=GOOGLEMAP_API_KEY,
             data[key] = request.form.get(key.strip())
 
-        # create user
-        user_creator = CreateUser()
-        my_user = user_creator.create_user(data)
+        data['user_name'] = data['email'].split('@')[0]
+        data['user_type'] = request.form.get('userType')
 
-        if isinstance(my_user, str):
-            registration['user_exits'] = "User Exits. <b> Login or use another email address</b>"
+        data
+        data.update(other_info)
+
+        print("========Data===========")
+        print("Data: ", data)
+        print("==============================")
+
+
+        # create user   
+        comp = {'cmp':[]}
+        if request.form.get('userType') == 'nurse':
+            comp['cmp'].append((Hospital, 'hospital'))
+        elif request.form.get('userType') == 'driver':
+            comp['cmp'].append((AmbulanceOwner, 'ambulance'))
+        else:
+            comp['cmp'] = Company
+
+        user_creator = CreateUser()
+
+        my_user = user_creator.create_user(cls_comp=comp['cmp'][0][0], category=comp['cmp'][0][1], data=data)
+
+        if not my_user:
+            registration['error'] = "Registration Unsuccessful. <b> Login or use another email address</b>"
             return (render_template('register.html',
                                         registration=registration,
-                                        GOOGLEMAP_API_KEY=GOOGLEMAP_API_KEY,
-                                        usertType=usertType, gender=gender))
-
-        if my_user == None or my_user == "":
-            registration['error'] = "User Not Created"
-            return (render_template('register.html',
-                                    registration=registration,
-                                    GOOGLEMAP_API_KEY=GOOGLEMAP_API_KEY,
-                                    usertType=usertType, gender=gender))
-        if isinstance(my_user, dict):
+                                        
+                                        usertType=usertType, gender=gender))#GOOGLEMAP_API_KEY=GOOGLEMAP_API_KEY,
+        if my_user:
             # Registration successful
             registration['success'] = "Account Created Successfully"
             print("========User created===========")
             return (render_template('register.html',
                                     registration=registration,
-                                    GOOGLEMAP_API_KEY=GOOGLEMAP_API_KEY,
-                                    usertType=usertType, gender=gender))
+                                    
+                                    usertType=usertType, gender=gender))#GOOGLEMAP_API_KEY=GOOGLEMAP_API_KEY,
 
     elif request.method == 'GET':
+        companies = storage.all(Company)
         return (render_template('register.html', registration=registration,
-                                 GOOGLEMAP_API_KEY=GOOGLEMAP_API_KEY,
-                                usertType=usertType, gender=gender))
+                                company=[company.to_dict() for company in companies.values()],
+                                 
+                                usertType=usertType, gender=gender))#GOOGLEMAP_API_KEY=GOOGLEMAP_API_KEY,
     else:
         abort(405, description="Method not allowed")
 
@@ -407,7 +470,7 @@ def get_hospitals():
     return (render_template('admin.html',
                             hospitals=hospitals,
                             
-                            GOOGLEMAP_API_KEY=GOOGLEMAP_API_KEY))
+                            ))#GOOGLEMAP_API_KEY=GOOGLEMAP_API_KEY
 
 @app.errorhandler(404)
 def not_found(error):

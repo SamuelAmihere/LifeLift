@@ -82,10 +82,9 @@ class Staff(BaseModel, Base):
     fields_errMSG = {
         'staff_number': 'Missing staff number',
         'status': 'Missing status',
+        'company_id': 'Missing company id',
         # to create internal user
         **InternalUser.fields_errMSG,
-        # to create company
-        **Company.fields_errMSG,
     }
     if storage_type == "db":
         __tablename__ = "staff"

@@ -61,8 +61,6 @@ class Hospital(BaseModel, Base):
         alerts = relationship("Alert", secondary=alert_hospital,
                              back_populates="hospitals")
         locations = relationship("Location", secondary=location_hospitals, back_populates="hospitals")
-        staff = relationship("HospitalStaff", backref="hospital",
-                             cascade="delete")
     else:
         company_id = ""
         latitude = ""

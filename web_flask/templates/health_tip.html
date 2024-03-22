@@ -1,0 +1,22 @@
+{% extends 'layout.html' %}
+{% block header %}
+<link rel="stylesheet" href="{{ url_for('static', filename='../static/styles/health_tips.css') }}">
+{% endblock %}
+{% block subMenu %}
+<div class="col-md-10" id="userCat">
+    <label for="userType" class="form-label">Heealth Topic</label>
+    <select id="userType" name="userType" class="form-select">
+        <option value="topic" >---topic---</option>
+        {% for t in healthTopic %}
+        <option value="{{ t.id }}" >{{ t.topic }}</option>
+        {% endfor %} 
+    </select>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="health-content">
+    small or no content here
+</div>
+    
+{% endblock %}

@@ -58,20 +58,20 @@ class CreateCompany:
     def __init__(self):
         self.companies = []
 
-    def create(self,cls, category, data):
+    def create(self,cls_comp, category, data):
         """
         This function creates companies
-        cls: the class to create
+        cls_comp: the class to create
         category: the category of the company
         data: a dictionary with the following keys
         return: a dictionary with the company id
         """
-        data = CreateUser.data_ok(cls, data)
+        data = CreateUser.data_ok(cls_comp, data)
         if not data:
             return None
         co_data = {}
         
-        for field in cls.fields_errMSG.keys():
+        for field in cls_comp.fields_errMSG.keys():
             if field in data:
                 co_data[field] = data[field]
        
@@ -108,7 +108,7 @@ class CreateCompany:
             if hosp:
                 return hosp.to_dict()
             
-            hosp = cls(
+            hosp = cls_comp(
             company_id=company.id,
             latitude=co_data['lat'],
             longitude=co_data['lng'])
@@ -117,12 +117,12 @@ class CreateCompany:
                 return hosp.to_dict()
             return None
         elif category == "ambulance":
-            ambu = storage.get_one_by(cls,
+            ambu = storage.get_one_by(cls_comp,
                                       company_id=company.id)
             if ambu:
                 return ambu.to_dict()
             
-            ambu = cls(company_id=company.id)
+            ambu = cls_comp(company_id=company.id)
             if ambu:
                 ambu.save()
                 return ambu.to_dict()
@@ -304,7 +304,7 @@ class CreateUser:
             return (int_user.to_dict())
         return None
     
-    def creat_staff(self, cls_comp, category, data):
+    def creat_staff(self, data):
         """
         This method creates a staff
         cls_comp: the class to create
@@ -320,17 +320,14 @@ class CreateUser:
         for field in Staff.fields_errMSG.keys():
             if field in data:
                 staff_data[field] = data[field]
-        
+        print("=========================Staff --- data====================================")
+        print(staff_data)
+        print(f"========================={'company_id' in staff_data} == {staff_data.get('company_id')}====================================")
         staff = storage.get_one_by(Staff,
-                                   staff_number=staff_data['staff_number'])
+                                   staff_number=staff_data['staff_number'],
+                                   company_id=staff_data.get('company_id'))
         if staff:
             return staff.to_dict()
-        
-        comp = CreateCompany().create(cls_comp, category, staff_data)
-        # create company
-        comp = CreateCompany().create(cls_comp, category, staff_data)
-        if not comp:
-            return None
 
         # create internal user
         int_user = self.create_internal_user(staff_data)
@@ -339,7 +336,7 @@ class CreateUser:
         staff = Staff(staff_number=staff_data['staff_number'],
                       internal_user_id=int_user.get('id'),
                       status=staff_data['status'],
-                      company_id=comp.id)
+                      company_id=staff_data.get('company_id'))
         if staff:
             staff.save()
             return staff.to_dict()
@@ -367,9 +364,11 @@ class CreateUser:
         user = storage.get_one_by(User, user_name=user_data['user_name'])
         if user:
             return user.to_dict()
-        
+        # print("=========================User --- data====================================")
+        # print(user_data)
         # create staff
-        staff = self.creat_staff(cls_comp, category, user_data)
+        staff = self.creat_staff(user_data)
+        
         if not staff:
             return None
         # create user

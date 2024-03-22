@@ -1,39 +1,3 @@
-
-// // Enable call button after form is submitted
-// document.getElementById('emergency-form').addEventListener('submit', function(e) {
-//     e.preventDefault();
-//     var form = e.target;
-//     var formData = new FormData(form);
-//     var xhr = new XMLHttpRequest();
-//     xhr.open('POST', '/emergency');
-//     xhr.send(formData);
-//     xhr.onreadystatechange = function() {
-//         if (xhr.readyState === 4 && xhr.status === 200) {
-//             // enable call button after form is submitted
-//             document.getElementById('call-199').disabled = false;
-//         }
-//     }
-// }
-// );
-
-// document.getElementById('emergency-form').addEventListener('submit', function(e) {
-//     e.preventDefault();
-//     var form = e.target;
-//     var formData = new FormData(form);
-//     var xhr = new XMLHttpRequest();
-//     xhr.open('POST', '/emergency');
-//     xhr.send(formData);
-//     xhr.onreadystatechange = function() {
-//         if (xhr.readyState === 4 && xhr.status === 200) {
-//             // enable call button after form is submitted
-//             document.getElementById('call-199').disabled = false;
-//         }
-//     }
-// }
-// );
-
-
-
 function highlightEmptyFields(fields) {
     for (var key in fields) {
         if (document.getElementById(fields[key]).value == '') {

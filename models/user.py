@@ -2,6 +2,9 @@
 """This is the user class"""
 import os
 import hashlib
+import uuid
+
+from flask_login import UserMixin
 from models.base_model import BaseModel, Base
 from sqlalchemy import Column, Enum, ForeignKey, String
 from sqlalchemy import Column, String

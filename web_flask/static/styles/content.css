@@ -12,19 +12,16 @@
 
 } */
 
-.content-right {
-    /* position: absolute; */
+/* .content-right {
     width: 40%;
     float: right;
-    display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: center;
     margin-top: 0;
-    /* margin-bottom: 50px; */
     padding: 0 10px;
     color: #bbdc7f;
     font-size: 14px;
     font-family: Circular,"Helvetica Neue",Helvetica,Arial,sans-serif;
     background: green;
-}
+} */

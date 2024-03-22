@@ -135,7 +135,7 @@
     
       
         {% if session.user_type == 'admin' %}
-        <div class="sub-menu" id="hoss" data-hospitals='{{ hospitals|tojson }}'>
+        <div class="sub-menu" id="hoss" data-hospitals='{{ hospitals|tojson }}' data-patients='{{ patients|tojson }}'>
         {% else %}
         <div class="sub-menu" id="hoss">
         {% endif %}      
@@ -148,8 +148,12 @@
 
 
 
-    <div class="contentContainer">
+  
+  <div class="contentContainer">
+    <!-- BEGIN OF CONTENT -->
+    {% block content %}
       {% block leftPane %}
+
       <div class="split left">
         <div id="map"></div>
       </div>
@@ -157,17 +161,25 @@
 
       
       <div class="split right">
+        <div class="patient-request" style="position: relative; overflow: hidden;">
+
+        </div>
         {% block rightPane %}
+
         {% endblock %}
       </div>
-     
-    </div><br>
+     {% endblock %} <!-- END content -->
+  </div><br>
 
-    <div class="footer">
-      <footer>
-        <p>2024 Lifelift</p>
-      </footer>
-    </div>
+
+<!-- END OF CONTENT -->
+
+  <div class="footer">
+    <footer>
+      <p>2024 Lifelift</p>
+    </footer>
+  </div>
+
     
 
 
@@ -227,19 +239,39 @@
             });
         }
 
-      
-        get_hospitals(map);
-        // console.log(hosdata);
+        var hosd = document.getElementById('hoss');
+        if (hosd == null || hosd.getAttribute('data-patients') == null){
+            // set hoss
+            get_hospitals(map);
+            // create autocomplete objects for all inputs
+            emergencyRequest(map);
+        } else {
+            hosdata = JSON.parse(hosd.getAttribute('data-patients'));
 
-        // create autocomplete objects for all inputs
-        emergencyRequest(map);
+            for (var i = 0; i < hosdata.length; i++) {
+                var lat = hosdata[i].latitude;
+                var lng = hosdata[i].longitude;
+                var name = hosdata[i].time;
+                get_requests(map, lat, lng, name);
+            }
+
+            get_hospitals(map);
+            
+
+            // create autocomplete objects for all inputs
+            emergencyRequest(map);
+        }
 
     }
 
 
     function emergencyRequest(map){
+      var req = document.getElementById('req');
+      if (req == null){
+          return;
+      }
 
-      document.getElementById('req').addEventListener('click', function() {
+      req.addEventListener('click', function() {
         if (document.getElementsByClassName('form-container')[0]) {
           return;
         }
@@ -251,12 +283,14 @@
       var lng = (Math.random() * (-0.2 - -0.4) + -0.4).toFixed(6);
       var myLatLng = {lat: parseFloat(lat), lng: parseFloat(lng)};
 
+      var div = $('.patient-request');
+
       //create form and add to div: emergency-form-container
       var form = document.createElement('form');
       form.setAttribute('method', 'post');
       form.setAttribute('action', '/emergency_request');
       form.setAttribute('id', 'emergency-form');
-      form.setAttribute('class', 'form-container split right');
+      form.setAttribute('class', 'form-container');
       form.innerHTML = `
   <div class="request_container">
     <div id="request-header">
@@ -323,9 +357,10 @@
       <br>
   </div>
   `;
+  div.append(form)
       //remove right from contentContainer and add form
-      document.getElementsByClassName('contentContainer')[0].removeChild(document.getElementsByClassName('right')[0]);
-      document.getElementsByClassName('contentContainer')[0].appendChild(form);
+      // document.getElementsByClassName('contentContainer')[0].removeChild(document.getElementsByClassName('right')[0]);
+      // document.getElementsByClassName('contentContainer')[0].appendChild(form);
   
 
       // update the existing map passed as the paraameter the caller's location
@@ -435,11 +470,12 @@
     } //END OF EMERGENCY REQUEST FUNCTION
     </script>
 
-    <!-- <script src="{{ url_for('static', filename='../static/styles/js/home.js') }}"></script>
+    <script src="{{ url_for('static', filename='../static/styles/js/home.js') }}"></script>
+    <script src="{{ url_for('static', filename='../static/styles/js/admin/requests.js') }}"></script>
     <script async defer
   
         src="https://maps.googleapis.com/maps/api/js?key={{GOOGLEMAP_API_KEY|safe }}&callback=initMap">
-    </script> -->
+    </script>
     {% block scripts %}
       
     {% endblock %}

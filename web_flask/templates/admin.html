@@ -6,8 +6,6 @@
        type="text/javascript"></script>
 
 {% endblock %}
-{% block content %}
-
 
 {% block subMenu %}
 <nav class="navbar navbar-expand-lg bg-body-tertiary adminMenu">
@@ -16,7 +14,7 @@
       <a class="nav-link active" aria-current="page" href="#" id="submenuHos">Hospitals</a>
     </li>
 
-    <li class="nav-item pat" id="pa">
+    <li class="nav-item pat" id="pa" onclick="load_patients('{{requests_count}}')">
       <a class="nav-link active" href="#" id="submenuPa">Requests</a>
     </li>
     <li class="nav-item emvs-c" id="emvs">
@@ -69,24 +67,26 @@
     </table>
 
   <!-- Requests: Patients Table -->
-    <table class="table-striped-pat" id="table-hosp-pat">
+    <table class="table-striped-pat" id="table-hosp-pat" value="{{ requests_count }}">
       <thead>
         <tr>
           <th>Current Requests</th>
-          <th>Status</th>
+          <th>Cause</th>
+          <th>Time</th>
         </tr>
       </thead>
       <tbody>
-        <!-- {% if hospitals[0]['__class__'] == 'Hospital' %}
-              {% for request in hospitals %}
+        {% if patients[0]['__class__'] == 'Patient' %}
+              {% for pat in patients %}
         <tr class="hosp-data">
-            <td>{{ request['name'] }}</td>
-            <td>{{ request['latitude'] }}</td>
-            <td>{{ request['longitude'] }}</td>
-            <td>{{ request['alerts'] }}</td>
+            <td>{{ pat['No'] }}</td>
+            <td>{{ pat['reason'] }}</td>
+            <td>{{ pat['time'] }}</td>
+
+
         </tr>
               {% endfor %}
-        {% endif %} -->
+        {% endif %}
       </tbody>
     </table>
 
@@ -95,8 +95,6 @@
 </div>
 {% endblock %}
 
-
-{% endblock %}
 
 
 {% block scripts %}
