@@ -12,7 +12,7 @@ from models.base_model import BaseModel, Base
 from models import storage_type
 
 
-class User(BaseModel, Base):
+class User(UserMixin, BaseModel, Base):
     """This is the class for User
     """
     fields_errMSG = {
@@ -53,3 +53,13 @@ class User(BaseModel, Base):
         hashed_input_password = hashlib.sha256(password_with_salt.encode()).hexdigest()
         # Compare with stored hashed password
         return hashed_input_password == self.hashed_password
+    
+    # Implementing the UserMixin class
+    def get_id(self):
+        return self.id
+    
+    def is_authenticated(self):
+        return True
+    
+    def is_active(self):
+        return True

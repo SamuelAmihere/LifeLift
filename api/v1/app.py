@@ -1,20 +1,21 @@
 #!/usr/bin/python3
 """ Lifelift Application """
 from models import storage
-from api.v1.views import app_views
-from os import environ
 from flask import Flask, render_template, make_response, jsonify #session
 from flask_cors import CORS, cross_origin
+from api.v1.views import app_views
+from os import environ
 from flasgger import Swagger
 from flasgger.utils import swag_from
 
 host = environ.get('LFTLIFT_API_HOST', '0.0.0.0')
-port = environ.get('LFTLIFT_API_PORT', 5000)
+port = environ.get('LFTLIFT_API_PORT')
 
 app = Flask(__name__)
 
 app.register_blueprint(app_views)
-CORS(app, resources={'/*': {'origins': host}})
+app.config['CORS_HEADERS'] = 'Content-Type'
+CORS(app, resources={'/*': {'origins': host+':'+port}})
 swagger = Swagger(app)
 
 # app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
@@ -61,6 +62,13 @@ app.config['SWAGGER'] = {
 }
 
 
+@app.after_request
+def handle_options(response):
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type, X-Requested-With"
+
+    return response
 
 if __name__ == "__main__":
     # app.config['SESSION_TYPE'] = 'filesystem'

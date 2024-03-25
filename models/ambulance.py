@@ -10,7 +10,8 @@ from sqlalchemy.orm import relationship
 from models.company import Company
 from models.hosp_operator import Hospital
 from models.location import Site
-from models.utils.support import distance, get_current_lat_lon
+from models.utils.algorithms import get_current_lat_lon
+
 
 if models.storage_type == "db":
     from models.incident import incident_ambulances

@@ -9,84 +9,66 @@ from models.company import Company
 from models.contact import Contact
 
 from models.hosp_operator import Hospital
+from models.incident import Incident
 from models.location import Address
-from models.system_user import HospitalStaff
+from models.system_user import HospitalStaff, Patient
 from models.utils.create_table import CreateCompany
+from models.utils.post_data import post_hospital
+from models.utils.retrieve_data import get_hospital
 from util.create_table import CreateUser
 
 ignore_keys = ['id', 'created_at', 'updated_at']
 
-
+# GETs
 @app_views.route('/hospitals', methods=['GET'])
-@swag_from('documentation/hospital/get_hospital.yml', methods=['GET'])
-def get_hospitals():
-    """Get all hospitals"""
-    results = []
-    data_hospitals = storage.all(Hospital)
-    for obj in data_hospitals.values():
-        comp = storage.get_one_by(Company, id=obj.company_id)
-        obj.name = comp.name
-        # fetch the company contact
-        print("2. =====================")
-        
-        contact = storage.get_one_by(Contact, address_id=comp.address_id)
-        if contact is None:
-            
-            # print(comp.address_id)
-            obj.contact = '+2330000000000'
-        else:
-            obj.contact = contact.phone_number
-        results.append(obj.to_dict())
-    
-    return jsonify(results)
-
-
-
-@app_views.route('/hospital/<hospital_id>', methods=['GET'],
+@app_views.route('/hospital/<string:hospital_id>', methods=['GET'],
                     strict_slashes=False)
-@swag_from('documentation/hospital/get_hospital_id.yml', methods=['GET'])
-def get_hospital(hospital_id=None):
-    """Get a hospital by id"""
-    print("1. =====================")
-    print(f"hospital_id: {hospital_id}")
+@swag_from('documentation/hospital/hospital.yml', methods=['GET'])
+def hospital(hospital_id=None):
+    """Get all hospitals"""
+    if hospital_id is None:
+        result = get_hospital()
+    else:
+        result = get_hospital(hospital_id)
+    return jsonify(result)
+
+
+# POSTs
+@app_views.route('/hospital', methods=['POST'], strict_slashes=False)
+@swag_from('documentation/hospital/create_hospital.yml', methods=['POST'])
+def create_hospital():
+    """Create a new hospital"""
+    if not request.json:
+        abort(400, 'Not a JSON')
+    if 'name' not in request.json:
+        abort(400, 'Missing name')
+    if 'address_id' not in request.json:
+        abort(400, 'Missing address_id')
+    if 'company_id' not in request.json:
+        abort(400, 'Missing company_id')
+    data = request.get_json()
+
+    new_hospital = post_hospital(data)
+    return make_response(jsonify(new_hospital), 201)
+
+# PUTs
+@app_views.route('/hospital/<string:hospital_id>', methods=['PUT'],
+                    strict_slashes=False)
+@swag_from('documentation/hospital/update_hospital.yml', methods=['PUT'])
+def update_hospital(hospital_id=None):
+    """Update a hospital"""
     obj = storage.get_one_by(Hospital, id=hospital_id)
     if obj is None:
         abort(404)
-    comp = storage.get_one_by(Company, id=obj.company_id)
-    obj.name = comp.name
-    return jsonify(obj.to_dict())
+    if not request.json:
+        abort(400, 'Not a JSON')
+    data = request.get_json()
+    for key, value in data.items():
+        setattr(obj, key, value)
+    obj.save()
+    return make_response(jsonify(obj.to_dict()), 200)
 
-# @app_views.route('/hospital', methods=['POST'], strict_slashes=False)
-# @swag_from('documentation/hospital/post_hospital.yml', methods=['POST'])
-# def post_hospital():
-#     """Create a new hospital"""
-#     if not request.json:
-#         abort(400, 'Not a JSON')
-#     if 'name' not in request.json:
-#         abort(400, 'Missing name')
-#     if 'address_id' not in request.json:
-#         abort(400, 'Missing address_id')
-#     if 'company_id' not in request.json:
-#         abort(400, 'Missing company_id')
-#     data = request.get_json()
-#     new_hospital = CreateCompany().create(Hospital, 'hospital', data)
-#     return make_response(jsonify(new_hospital), 201)
 
-# @app_views.route('/hospital/<hospital_id>', methods=['PUT'],
-#                     strict_slashes=False)
-# @swag_from('documentation/hospital/put_hospital_id.yml', methods=['PUT'])
-# def put_hospital(hospital_id=None):
-#     """Update a hospital"""
-#     obj = storage.get_one_by(Hospital, id=hospital_id)
-#     if obj is None:
-#         abort(404)
-#     if not request.json:
-#         abort(400, 'Not a JSON')
-#     data = request.get_json()
-#     for key, value in data.items():
-#         setattr(obj, key, value)
-#     obj.save()
-#     return make_response(jsonify(obj.to_dict()), 200)
 
 # @app_views.route('/hospital/<hospital_id>', methods=['DELETE'],
 #                     strict_slashes=False)

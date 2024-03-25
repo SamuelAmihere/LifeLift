@@ -11,9 +11,10 @@ from models.incident import Incident
 from models.location import Address
 from models.system_user import InternalUser, Patient, Person, Staff
 from models.user import User
+from models.utils.support import data_ok
 
 
-def login_user(email, pwd):
+def auth_user(email, pwd):
     """This function logs in a user"""
     # check data type
     if not isinstance(email, str):
@@ -23,7 +24,7 @@ def login_user(email, pwd):
         return 1
     if not user.is_valid_password(pwd):
         return 2
-    return (user.to_dict())
+    return (user)
 
 def check_by_email(email):
     """This function checks if a user exists by email"""
@@ -312,7 +313,7 @@ class CreateUser:
         data: dictionary of the staff
         """
 
-        data = data if CreateUser.data_ok(Staff, data) else None
+        data = data if data_ok(Staff, data) else None
         if data == None:
             return None
         staff_data = {}
@@ -342,17 +343,17 @@ class CreateUser:
             return staff.to_dict()
         return None
 
-    def create_user(self, cls_comp, category, data):
+    def create_user(self, data):
         """
         This method creates a user
-        cls_comp: the class to create
-        category: the category of the company
         data: dictionary of the user
         """
         # create person
-        data = data if CreateUser.data_ok(User, data) else None
+        data = data if data_ok(User, data) else None
         if data == None:
             return None
+        # print("=========================1. Before User --- data====================================")
+        # print(data)
         user_data = {}
         userFields = User.fields_errMSG
         userFields.update(**Staff.fields_errMSG)
@@ -364,7 +365,7 @@ class CreateUser:
         user = storage.get_one_by(User, user_name=user_data['user_name'])
         if user:
             return user.to_dict()
-        # print("=========================User --- data====================================")
+        # print("=========================2. User --- data====================================")
         # print(user_data)
         # create staff
         staff = self.creat_staff(user_data)
